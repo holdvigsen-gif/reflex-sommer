@@ -422,6 +422,7 @@
   <button onclick="nav('italiano',this)"><span class="ni">🇮🇹</span>Italiano</button>
   <button onclick="nav('skjerm',this)"><span class="ni">⚡</span>Skjermtid</button>
   <button onclick="nav('verktoy',this)"><span class="ni">🛠️</span>Verktøy</button>
+  <button onclick="nav('kalender',this)"><span class="ni">📅</span>Kalender</button>
 </nav>
 
 <div id="pow">POW!</div>
@@ -788,6 +789,125 @@ document.getElementById('cdNum2').textContent=daysToTrip;
 if(daysToTrip===0){document.getElementById('cdSub').textContent='I dag bærer det av gårde! ✈️';}
 renderQuests();renderHero();renderEnergy();renderTrip();renderPack();renderHene();
 setReflex(moodForTime(),speechForTime());
+
+/* ---------- KALENDER ---------- */
+async function startGoogleLogin() {
+  try {
+    const r = await fetch('/.netlify/functions/auth-start');
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+  } catch(e) { alert('Feil: ' + e.message); }
+}
+
+async function loadCalendar() {
+  const token = localStorage.getItem('gAccessToken');
+  if (!token) return;
+  document.getElementById('cal-login-section').style.display='none';
+  document.getElementById('cal-events-section').style.display='block';
+  document.getElementById('cal-loading').style.display='block';
+  try {
+    const r = await fetch('/.netlify/functions/get-calendar?token='+encodeURIComponent(token));
+    const d = await r.json();
+    document.getElementById('cal-loading').style.display='none';
+    if (d.error) {
+      if (d.error.includes('invalid')||d.error.includes('expired')) {
+        localStorage.removeItem('gAccessToken');
+        document.getElementById('cal-login-section').style.display='block';
+        document.getElementById('cal-events-section').style.display='none';
+      }
+      return;
+    }
+    const evts = d.events||[];
+    if (!evts.length) { document.getElementById('cal-empty').style.display='block'; return; }
+    renderCalEvts(evts);
+    const withLoc = evts.find(e=>e.location);
+    if (withLoc) loadPlaces(withLoc.location, token);
+  } catch(e) { document.getElementById('cal-loading').style.display='none'; }
+}
+
+function renderCalEvts(evts) {
+  const list = document.getElementById('cal-events-list');
+  list.innerHTML='';
+  evts.forEach(ev => {
+    const d = document.createElement('div');
+    d.className='hero'; d.style.marginBottom='12px';
+    const s = new Date((ev.start&&ev.start.dateTime)||ev.start.date);
+    const day = s.getDate();
+    const mon = s.toLocaleString('no-NO',{month:'short'});
+    const time = (ev.start&&ev.start.dateTime) ? s.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'}) : 'Hele dagen';
+    const loc = ev.location ? '<div style="margin-top:8px;font-size:.85rem">📍 <a href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(ev.location)+'" target="_blank" style="color:var(--coral);font-weight:700">'+ev.location+'</a></div>' : '';
+    d.innerHTML='<div style="display:flex;gap:12px;align-items:flex-start"><div style="background:var(--coral);color:#fff;border-radius:10px;padding:6px 10px;text-align:center;min-width:44px;flex-shrink:0"><div style="font-family:Bangers,cursive;font-size:1.4rem;line-height:1">'+day+'</div><div style="font-size:.65rem;font-weight:800;text-transform:uppercase">'+mon+'</div></div><div style="flex:1"><div style="font-weight:800;font-size:1rem">'+ev.title+'</div><div style="font-size:.8rem;color:var(--soft)">'+time+'</div>'+loc+'</div></div>';
+    list.appendChild(d);
+  });
+}
+
+async function loadPlaces(location, token) {
+  document.getElementById('places-loading').style.display='block';
+  try {
+    const r = await fetch('/.netlify/functions/get-places?location='+encodeURIComponent(location)+'&token='+encodeURIComponent(token));
+    const d = await r.json();
+    document.getElementById('places-loading').style.display='none';
+    if (d.places&&d.places.length) renderPlaces(d.places,location);
+  } catch(e) { document.getElementById('places-loading').style.display='none'; }
+}
+
+function renderPlaces(places, near) {
+  const list = document.getElementById('places-list');
+  list.innerHTML='<p style="font-size:.8rem;color:var(--soft);margin-bottom:8px">Nær '+near+':</p>';
+  places.slice(0,5).forEach(p => {
+    const d = document.createElement('div');
+    d.className='hero'; d.style.marginBottom='10px';
+    const stars = p.rating ? '⭐ '+p.rating : '';
+    const ml = 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.name+' '+(p.vicinity||'|'));
+    d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800">'+p.name+'</div><div style="font-size:.8rem;color:var(--soft)">'+( p.type||'')+' '+stars+'</div></div><a href="'+ml+'" target="_blank" style="background:var(--sky);color:var(--ink);border-radius:10px;padding:6px 12px;font-size:.8rem;font-weight:800;text-decoration:none;flex-shrink:0">Kart 🗺️</a></div>';
+    list.appendChild(d);
+  });
+}
+
+window.addEventListener('load', function() {
+  const params = new URLSearchParams(window.location.search);
+  const auth = params.get('auth');
+  const tok = params.get('token');
+  if (auth==='success' && tok) {
+    localStorage.setItem('gAccessToken', tok);
+    window.history.replaceState({}, '', window.location.pathname);
+    const btn = Array.from(document.querySelectorAll('nav button')).find(b=>b.textContent.includes('Kalender'));
+    if (btn) nav('kalender', btn);
+    loadCalendar();
+  } else if (auth==='error') {
+    window.history.replaceState({}, '', window.location.pathname);
+    alert('Innlogging feilet. Prøv igjen.');
+  }
+});
+
+const _origNav = nav;
+nav = function(id, btn) {
+  _origNav(id, btn);
+  if (id === 'kalender') loadCalendar();
+};
+
 </script>
+
+  <!-- ============ KALENDER ============ -->
+  <div id="kalender" class="page">
+    <div id="cal-login-section">
+      <div class="hero" style="text-align:center;padding:24px 16px;">
+        <div style="font-size:3rem;margin-bottom:8px">📅</div>
+        <h2 style="font-family:'Bangers',cursive;font-size:1.8rem;letter-spacing:1px;margin-bottom:8px">Ludvigs Kalender</h2>
+        <p style="color:var(--soft);margin-bottom:20px">Logg inn med Google for å se hva som skjer!</p>
+        <button onclick="startGoogleLogin()" style="background:var(--coral);color:#fff;border:none;border-radius:14px;padding:14px 28px;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:3px 3px 0 var(--ink)">🔐 Logg inn med Google</button>
+      </div>
+    </div>
+    <div id="cal-events-section" style="display:none">
+      <div class="sec"><span class="dot" style="background:var(--coral)"></span>Kommende aktiviteter</div>
+      <div id="cal-loading" style="text-align:center;padding:20px;display:none"><div style="font-size:2rem">⏳</div><p>Henter kalender...</p></div>
+      <div id="cal-events-list"></div>
+      <div id="cal-empty" style="text-align:center;padding:20px;display:none"><div style="font-size:2rem">🗓️</div><p style="color:var(--soft)">Ingen kommende avtaler.</p></div>
+      <div class="sec" style="margin-top:24px"><span class="dot" style="background:var(--sky)"></span>Ting å gjøre i nærheten</div>
+      <div id="places-loading" style="text-align:center;padding:16px;display:none"><div style="font-size:1.5rem">🔍</div><p>Leter etter aktiviteter...</p></div>
+      <div id="places-list"></div>
+    </div>
+  </div>
+
 </body>
 </html>
