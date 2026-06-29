@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflex – Sommer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  :root{
+    --ink:#143055;
+    --sea:#13B5C9;
+    --sky:#2D9CFF;
+    --sun:#FFC73C;
+    --coral:#FF6F61;
+    --terra:#E07A3F;
+    --green:#27CE8F;
+    --sand:#FFF3DC;
+    --card:#ffffff;
+    --soft:#8A93A8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Nunito',sans-serif;color:var(--ink);
+    background-color:var(--sand);
+    background-image:
+      radial-gradient(circle at 50% -10%, rgba(255,199,60,.5), transparent 45%),
+      radial-gradient(var(--sun) 1px, transparent 1.4px);
+    background-size:auto, 26px 26px;
+    background-attachment:fixed;min-height:100vh;padding-bottom:92px;
+  }
+  body::before{content:"";position:fixed;inset:0;background:var(--sand);opacity:.78;z-index:-1;}
+  .wrap{max-width:520px;margin:0 auto;padding:0 14px;}
+
+  /* HEADER */
+  header{padding:16px 14px 4px;max-width:520px;margin:0 auto;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .brand{font-family:'Bangers',cursive;font-size:1.85rem;letter-spacing:1px;line-height:1;}
+  .brand span{color:var(--coral);}
+  .streak{background:var(--ink);color:#fff;border-radius:14px;padding:6px 11px;font-weight:800;font-size:.8rem;
+    display:flex;align-items:center;gap:5px;box-shadow:3px 3px 0 var(--sun);}
+
+  .hero{background:var(--card);border:3px solid var(--ink);border-radius:22px;box-shadow:5px 5px 0 var(--ink);
+    padding:14px;margin-top:12px;display:flex;gap:12px;align-items:center;position:relative;overflow:hidden;}
+  .hero-sun{position:absolute;right:-26px;top:-26px;width:110px;height:110px;
+    background:radial-gradient(var(--sun),transparent 70%);opacity:.55;}
+  .reflex{width:78px;height:78px;flex-shrink:0;}
+  .hero-info{flex:1;min-width:0;}
+  .bubble{background:var(--sand);border:2.5px solid var(--ink);border-radius:14px;padding:7px 11px;
+    font-weight:800;font-size:.92rem;position:relative;line-height:1.25;}
+  .bubble:after{content:"";position:absolute;left:-9px;top:18px;border:7px solid transparent;border-right-color:var(--ink);}
+  .lvl-row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .lvl-badge{font-family:'Bangers',cursive;font-size:1rem;letter-spacing:.5px;background:var(--terra);color:#fff;
+    border:2.5px solid var(--ink);border-radius:10px;padding:2px 9px;}
+  .xp-track{flex:1;height:13px;background:var(--sand);border:2.5px solid var(--ink);border-radius:9px;overflow:hidden;}
+  .xp-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--sun));width:0%;transition:width .4s;}
+  .xp-txt{font-size:.72rem;font-weight:800;color:var(--soft);}
+
+  /* COUNTDOWN */
+  .count{margin-top:12px;background:linear-gradient(120deg,var(--sky),var(--sea));border:3px solid var(--ink);
+    border-radius:20px;box-shadow:5px 5px 0 var(--ink);padding:14px 16px;color:#fff;display:flex;align-items:center;gap:14px;}
+  .count .num{font-family:'Bangers',cursive;font-size:3rem;line-height:.9;text-shadow:2px 2px 0 var(--ink);}
+  .count .ctxt{font-weight:800;font-size:.98rem;line-height:1.25;}
+  .count .ctxt small{display:block;font-weight:700;opacity:.9;font-size:.8rem;margin-top:2px;}
+
+  /* NAV */
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:3px solid var(--ink);
+    display:flex;z-index:50;max-width:520px;margin:0 auto;}
+  nav button{flex:1;border:none;background:none;font-family:'Nunito';cursor:pointer;padding:9px 4px 7px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;font-size:.66rem;color:var(--soft);
+    border-top:4px solid transparent;margin-top:-3px;}
+  nav button .ni{font-size:1.4rem;line-height:1;}
+  nav button.active{color:var(--sky);border-top-color:var(--sky);}
+
+  .page{display:none;padding-top:12px;}
+  .page.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .sec{font-family:'Bangers',cursive;font-size:1.25rem;letter-spacing:.8px;margin:18px 2px 9px;display:flex;align-items:center;gap:8px;}
+  .sec .dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);}
+
+  /* QUEST */
+  .quest{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);
+    padding:12px 13px;margin-bottom:11px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+  .quest:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink);}
+  .q-ic{font-size:1.8rem;flex-shrink:0;width:30px;text-align:center;}
+  .q-mid{flex:1;min-width:0;}
+  .q-time{font-size:.7rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.5px;}
+  .q-title{font-size:1rem;font-weight:800;margin-top:1px;}
+  .q-hint{font-size:.78rem;color:var(--soft);margin-top:1px;font-weight:600;}
+  .q-rewards{display:flex;gap:5px;margin-top:5px;}
+  .pill{font-size:.66rem;font-weight:800;padding:2px 7px;border-radius:8px;border:2px solid var(--ink);}
+  .pill.xp{background:var(--sun);}
+  .pill.scr{background:var(--sea);color:#fff;}
+  .q-check{width:34px;height:34px;border-radius:10px;border:3px solid var(--ink);background:var(--card);
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:transparent;font-weight:900;}
+  .quest.done{background:#F0FCF6;}
+  .quest.done .q-title{text-decoration:line-through;opacity:.6;}
+  .quest.done .q-check{background:var(--green);color:#fff;}
+  .quest.done .q-ic{opacity:.5;}
+
+  /* TRIP */
+  .dest{background:linear-gradient(120deg,var(--terra),var(--coral));border:3px solid var(--ink);border-radius:22px;
+    box-shadow:5px 5px 0 var(--ink);padding:16px;color:#fff;text-align:center;}
+  .dest h2{font-family:'Bangers',cursive;font-size:2rem;letter-spacing:1px;}
+  .dest p{font-weight:700;font-size:.9rem;margin-top:2px;opacity:.95;}
+  .flightcard{background:var(--card);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);
+    padding:13px;margin-top:12px;}
+  .leg{display:flex;align-items:center;gap:10px;font-weight:800;}
+  .leg .code{background:var(--ink);color:#fff;border-radius:8px;padding:2px 7px;font-size:.72rem;}
+  .leg .arrow{flex:1;border-top:2.5px dashed var(--soft);position:relative;}
+  .leg .arrow:after{content:"✈️";position:absolute;right:-2px;top:-12px;font-size:.9rem;}
+  .leg-time{font-size:.78rem;color:var(--soft);font-weight:700;margin:2px 0 10px 0;}
+
+  .step{display:flex;gap:11px;margin-bottom:4px;}
+  .step .bullet{display:flex;flex-direction:column;align-items:center;}
+  .step .circle{width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);background:var(--sun);
+    display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+  .step .line{flex:1;width:3px;background:var(--ink);margin:2px 0;border-radius:2px;}
+  .step:last-child .line{display:none;}
+  .step .body{padding-bottom:14px;flex:1;}
+  .step .st{font-weight:800;font-size:.95rem;}
+  .step .sd{font-size:.8rem;color:var(--soft);font-weight:600;margin-top:1px;line-height:1.4;}
+
+  .pack{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);
+    padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:11px;cursor:pointer;}
+  .pack .pi{font-size:1.4rem;}
+  .pack .pt{flex:1;font-weight:800;font-size:.92rem;}
+  .pack .pc{width:28px;height:28px;border:3px solid var(--ink);border-radius:8px;display:flex;align-items:center;
+    justify-content:center;font-weight:900;color:transparent;}
+  .pack.on{background:#F0FCF6;}
+  .pack.on .pt{text-decoration:line-through;opacity:.55;}
+  .pack.on .pc{background:var(--green);color:#fff;}
+
+  /* SCREEN */
+  .energy-card{background:var(--ink);color:#fff;border:3px solid var(--ink);border-radius:22px;
+    box-shadow:5px 5px 0 var(--sea);padding:18px;text-align:center;}
+  .energy-card h2{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:1px;}
+  .battery{margin:14px auto 8px;width:100%;max-width:280px;height:42px;background:#21406b;border:3px solid #fff;
+    border-radius:14px;position:relative;overflow:hidden;}
+  .battery-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--sea));transition:width .5s;}
+  .battery.low .battery-fill{background:linear-gradient(90deg,var(--coral),var(--sun));}
+  .battery.free .battery-fill{background:linear-gradient(90deg,var(--sun),var(--sky));}
+  .battery-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'Bangers',cursive;font-size:1.4rem;letter-spacing:1px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);}
+  .energy-sub{font-size:.82rem;opacity:.88;font-weight:700;}
+  .timer-row{display:flex;gap:9px;margin-top:14px;}
+  .big-btn{flex:1;border:3px solid var(--ink);border-radius:14px;padding:12px 6px;font-family:'Nunito';font-weight:900;
+    font-size:.9rem;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .1s,box-shadow .1s;
+    display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink);}
+  .big-btn .be{font-size:1.35rem;}
+  .big-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+  .big-btn.yt{background:var(--coral);color:#fff;}
+  .big-btn.game{background:var(--sky);color:#fff;}
+  .big-btn.stop{background:var(--sun);}
+  .running-info{margin-top:12px;font-weight:800;font-size:.95rem;display:none;}
+  .running-info.on{display:block;}
+
+  .panel{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:14px;margin-top:14px;}
+  .panel h3{font-family:'Bangers',cursive;font-size:1.15rem;letter-spacing:.6px;margin-bottom:8px;}
+  .rule{display:flex;gap:9px;align-items:flex-start;font-size:.88rem;font-weight:600;margin-bottom:7px;line-height:1.4;}
+  .rule .rn{font-family:'Bangers',cursive;color:var(--sky);font-size:1.05rem;flex-shrink:0;}
+  .travelmode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;
+    background:linear-gradient(120deg,var(--sky),var(--sea));border:3px solid var(--ink);border-radius:14px;padding:11px 13px;color:#fff;}
+  .travelmode .tm-l{font-weight:800;font-size:.9rem;line-height:1.3;}
+  .toggle{width:54px;height:30px;border:3px solid var(--ink);border-radius:18px;background:#fff;position:relative;cursor:pointer;flex-shrink:0;}
+  .toggle .knob{position:absolute;top:1px;left:1px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:left .2s;}
+  .toggle.on{background:var(--sun);}
+  .toggle.on .knob{left:25px;}
+  .adjust{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;background:var(--sand);
+    border:2.5px solid var(--ink);border-radius:12px;padding:8px 12px;}
+  .adjust-lbl{font-weight:800;font-size:.85rem;}
+  .stepper{display:flex;align-items:center;gap:8px;}
+  .stepper button{width:30px;height:30px;border:2.5px solid var(--ink);border-radius:9px;background:var(--card);font-weight:900;font-size:1.1rem;cursor:pointer;line-height:1;}
+  .stepper .val{font-weight:900;min-width:54px;text-align:center;font-size:.9rem;}
+
+  /* TOOLS */
+  .h-card{background:var(--card);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);padding:12px;margin-bottom:11px;}
+  .h-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .h-letter{width:46px;height:40px;border-radius:11px;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;
+    font-family:'Bangers',cursive;font-size:.95rem;color:#fff;flex-shrink:0;letter-spacing:.5px;}
+  .h-title{font-weight:800;font-size:.95rem;}
+  .h-sub{font-size:.74rem;color:var(--soft);font-weight:600;}
+  .h-answer{width:100%;border:2.5px solid var(--ink);border-radius:11px;padding:9px 11px;font-family:'Nunito';font-size:.88rem;color:var(--ink);resize:none;outline:none;min-height:44px;font-weight:600;}
+  .h-answer:focus{border-color:var(--sky);}
+  .power-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .power{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:12px 9px;text-align:center;}
+  .power .pi{font-size:1.9rem;}
+  .power .pl{font-weight:800;font-size:.84rem;margin-top:4px;}
+  .power .pd{font-size:.7rem;color:var(--soft);font-weight:600;margin-top:2px;}
+  .italian{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
+  .italian .ifl{font-size:1.6rem;}
+  .italian b{font-size:1rem;}
+  .italian span{font-size:.8rem;color:var(--soft);font-weight:700;}
+  .calm{background:var(--ink);border-radius:18px;padding:20px;text-align:center;color:#fff;margin-top:14px;}
+  .breath{width:120px;height:120px;border-radius:50%;margin:14px auto;background:radial-gradient(var(--sea),var(--sky));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff;animation:breathe 8s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:scale(.65);}50%{transform:scale(1);}}
+
+  /* FX */
+  #pow{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:200;pointer-events:none;
+    font-family:'Bangers',cursive;font-size:3.4rem;color:var(--sun);text-shadow:3px 3px 0 var(--ink);letter-spacing:2px;}
+  #pow.go{animation:pow .7s ease;}
+  @keyframes pow{0%{transform:translate(-50%,-50%) scale(0) rotate(-15deg);opacity:0;}40%{transform:translate(-50%,-50%) scale(1.2) rotate(6deg);opacity:1;}100%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:0;}}
+  .float{position:fixed;z-index:200;font-family:'Bangers',cursive;font-size:1.4rem;color:var(--green);text-shadow:2px 2px 0 var(--ink);pointer-events:none;animation:floatUp 1s ease forwards;}
+  @keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.6);}20%{opacity:1;}100%{opacity:0;transform:translateY(-70px) scale(1.1);}}
+  #levelup{position:fixed;inset:0;background:rgba(20,48,85,.92);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px;}
+  #levelup.show{display:flex;}
+  #levelup .lu-star{font-size:4.5rem;animation:spin 1.2s ease;}
+  @keyframes spin{from{transform:rotate(-180deg) scale(0);}to{transform:rotate(0) scale(1);}}
+  #levelup h2{font-family:'Bangers',cursive;font-size:2.3rem;letter-spacing:1.5px;color:var(--sun);margin:8px 0;}
+  #levelup p{font-weight:700;font-size:1rem;opacity:.9;max-width:300px;}
+  #levelup button{margin-top:20px;background:var(--green);border:3px solid #fff;color:#fff;font-family:'Bangers';font-size:1.3rem;letter-spacing:1px;padding:9px 26px;border-radius:14px;cursor:pointer;}
+  .footnote{text-align:center;color:var(--soft);font-size:.72rem;font-weight:600;margin:18px 4px 6px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div class="brand">REFLEX <span>SOMMER</span> ☀️</div>
+    <div class="streak">🔥 <span id="streakNum">0</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-sun"></div>
+    <div class="reflex" id="reflexBox"></div>
+    <div class="hero-info">
+      <div class="bubble" id="reflexSpeech">Sommerferie! Hva skal vi finne på?</div>
+      <div class="lvl-row">
+        <div class="lvl-badge" id="lvlBadge">LVL 1</div>
+        <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+      </div>
+      <div class="xp-txt" id="xpTxt">0 / 100 XP</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ I DAG ============ -->
+  <div id="idag" class="page active">
+    <div class="count" onclick="nav('bari',document.querySelectorAll('nav button')[2])">
+      <div class="num" id="cdNum">7</div>
+      <div class="ctxt">dager til Bari! 🇮🇹<small id="cdSub">Avreise torsdag 2. juli</small></div>
+    </div>
+
+    <div class="sec"><span class="dot" style="background:var(--terra)"></span>Reise-forberedelser</div>
+    <div class="quest" onclick="toggleQuest('reiseprep')">
+      <div class="q-ic">🎒</div>
+      <div class="q-mid">
+        <div class="q-time">Neste uke</div>
+        <div class="q-title">Start å pakke sekken</div>
+        <div class="q-hint">Tegnesaker, badedrakt, solfaktor – gå til pakkelista</div>
+        <div class="q-rewards"><span class="pill xp">+50 XP</span><span class="pill scr">+20 min ⚡</span></div>
+      </div>
+      <div class="q-check">✓</div>
+    </div>
+
+    <div class="quest" onclick="openExplorer()">
+      <div class="q-ic">🔍</div>
+      <div class="q-mid">
+        <div class="q-time">Planlegging</div>
+        <div class="q-title">Søk etter gøye ting å gjøre i Bari</div>
+        <div class="q-hint">Hva kan en 11-åring gjøre i Puglia? Åpne nettleseren</div>
+        <div class="q-rewards"><span class="pill xp">+30 XP</span></div>
+      </div>
+      <div class="q-check">✓</div>
+    </div>
+
+    <div class="quest" onclick="toggleQuest('reisedokumenter')">
+      <div class="q-ic">📄</div>
+      <div class="q-mid">
+        <div class="q-time">Før reisen</div>
+        <div class="q-title">Sjekk pass og dokumenter</div>
+        <div class="q-hint">Hva trenger du med i flyet? Spør mamma eller pappa</div>
+        <div class="q-rewards"><span class="pill xp">+25 XP</span></div>
+      </div>
+      <div class="q-check">✓</div>
+    </div>
+
+    <div class="sec"><span class="dot" style="background:var(--sky)"></span>Dagens oppdrag</div>
+    <div id="questHost"></div>
+    <div class="footnote">Sommertider: senere opp, og leggetid 1 time senere på ukedager / 2 timer i helger. Gjøremål og kreativ oppgave er nye hver dag 🔄</div>
+  </div>
+
+  <!-- ============ TIL BARI ============ -->
+  <div id="bari" class="page">
+    <div class="dest">
+      <h2>🌊 BARI</h2>
+      <p>Puglia · Sør-Italia · hælen på støvelen 🇮🇹</p>
+    </div>
+
+    <div class="count" style="margin-top:12px;">
+      <div class="num" id="cdNum2">7</div>
+      <div class="ctxt">dager igjen!<small>Torsdag 2. juli</small></div>
+    </div>
+
+    <div class="sec"><span class="dot" style="background:var(--sky)"></span>Slik reiser vi</div>
+    <div class="flightcard">
+      <div class="leg"><span class="code">DY617</span> Bergen <span class="arrow"></span> Oslo</div>
+      <div class="leg-time">12:00 → 12:55 · ca. 1 time</div>
+      <div class="leg"><span class="code">DY1864</span> Oslo <span class="arrow"></span> Bari</div>
+      <div class="leg-time">16:05 → 19:15 · ca. 3 timer · mellomlanding/bytte i Oslo</div>
+    </div>
+
+    <div class="sec"><span class="dot" style="background:var(--sun)"></span>Reisedagen steg for steg</div>
+    <div id="tripSteps"></div>
+
+    <div class="sec"><span class="dot" style="background:var(--coral)"></span>Pakkelista mi</div>
+    <p style="font-size:.82rem;color:var(--soft);font-weight:600;margin:0 2px 10px;">Kryss av selv når du har pakket! 🎒</p>
+    <div id="packHost"></div>
+
+    <div class="sec"><span class="dot" style="background:var(--terra)"></span>Dette kan vi glede oss til</div>
+    <div class="italian"><span class="ifl">🍕</span><div><b>Ekte italiensk pizza & focaccia</b><br><span>Puglia er kjent for focaccia barese</span></div></div>
+    <div class="italian"><span class="ifl">🍦</span><div><b>Gelato hver dag?</b><br><span>Italiensk is slår alt</span></div></div>
+    <div class="italian"><span class="ifl">🏖️</span><div><b>Bade i varmt hav</b><br><span>Mye varmere enn i Bergen!</span></div></div>
+    <div class="italian"><span class="ifl">🏠</span><div><b>Trulli-husene i Alberobello</b><br><span>Runde hus med spisse tak – som fra en tegneserie</span></div></div>
+    <div class="footnote">Reise-info er hentet fra familiens reisekvittering (Norwegian, ref. X723V8).</div>
+  </div>
+
+  <!-- ============ ITALIANO ============ -->
+  <div id="italiano" class="page">
+    <div class="sec"><span class="dot" style="background:var(--terra)"></span>Litt italiensk til turen</div>
+    <p style="font-size:.82rem;color:var(--soft);font-weight:600;margin:0 2px 12px;">Lær noen enkle ord og fraser. Det er gøy – og italienerne elsker det når du prøver! 🇮🇹</p>
+
+    <div class="italian"><span class="ifl">👋</span><div><b>Ciao!</b> <span>– Hei / ha det (uformelt)</span></div></div>
+    <div class="italian"><span class="ifl">🎩</span><div><b>Buongiorno</b> <span>– God morgen / dag (formelt)</span></div></div>
+    <div class="italian"><span class="ifl">🌙</span><div><b>Buonasera</b> <span>– God kveld</span></div></div>
+    <div class="italian"><span class="ifl">🙏</span><div><b>Grazie!</b> <span>– Takk!</span></div></div>
+    <div class="italian"><span class="ifl">😊</span><div><b>Prego</b> <span>– Vær så snill / gjerne (svar på takk)</span></div></div>
+    <div class="italian"><span class="ifl">❓</span><div><b>Scusa, parli inglese?</b> <span>– Unnskyld, snakker du engelsk?</span></div></div>
+
+    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--sea)"></span>Mat & drikke 🍕</div>
+    <div class="italian"><span class="ifl">🍦</span><div><b>Un gelato, per favore</b> <span>– En is, takk</span></div></div>
+    <div class="italian"><span class="ifl">🍕</span><div><b>Una pizza, per favore</b> <span>– En pizza, takk</span></div></div>
+    <div class="italian"><span class="ifl">💧</span><div><b>Un'acqua, per favore</b> <span>– Et glass vann, takk</span></div></div>
+    <div class="italian"><span class="ifl">😋</span><div><b>Che buono!</b> <span>– Så godt!</span></div></div>
+    <div class="italian"><span class="ifl">💰</span><div><b>Quanto costa?</b> <span>– Hvor mye koster det?</span></div></div>
+
+    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--green)"></span>Steder & spørsmål 🗺️</div>
+    <div class="italian"><span class="ifl">🏖️</span><div><b>Dove la spiaggia?</b> <span>– Hvor er stranden?</span></div></div>
+    <div class="italian"><span class="ifl">🏰</span><div><b>Che bello!</b> <span>– Så fint! / Så vakkert!</span></div></div>
+    <div class="italian"><span class="ifl">📸</span><div><b>Una foto, per favore</b> <span>– Et bilde, takk</span></div></div>
+    <div class="italian"><span class="ifl">🎉</span><div><b>Mi piace!</b> <span>– Jeg liker det!</span></div></div>
+    <div class="italian"><span class="ifl">😎</span><div><b>Che forte!</b> <span>– Så kult!</span></div></div>
+
+    <div style="background:linear-gradient(120deg,var(--terra),var(--coral));border:3px solid var(--ink);border-radius:18px;
+      box-shadow:5px 5px 0 var(--ink);padding:14px;margin-top:14px;color:#fff;text-align:center;">
+      <div style="font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:6px;">💡 Pro-tips</div>
+      <div style="font-size:.85rem;font-weight:700;line-height:1.5;">
+        • Italienerne snakker med hendene – les av leppene, ikke bare ørene!<br>
+        • "Per favore" (takk) åpner mange dører. Bruk det!<br>
+        • Hvis du ikke forstår: "Non capisco" (jeg forstår ikke) – folk hjelper gjerne til.
+      </div>
+    </div>
+
+    <div class="footnote">Lyt til en italiensk podcast eller sang før reisen – hjernen din blir kjent med språket! 🎵</div>
+  </div>
+
+  <!-- ============ SKJERMTID ============ -->
+  <div id="skjerm" class="page">
+    <div class="energy-card">
+      <h2>⚡ REFLEX-ENERGI</h2>
+      <div class="energy-sub">Skjermtid igjen i dag</div>
+      <div class="battery" id="battery"><div class="battery-fill" id="batteryFill"></div><div class="battery-txt" id="batteryTxt">120 min</div></div>
+      <div class="energy-sub" id="energyNote">Gjør oppdrag for å lade opp mer! 🔋</div>
+      <div class="running-info" id="runningInfo">▶️ <span id="runLabel">Spill</span> går nå · <span id="runClock">00:00</span></div>
+      <div class="timer-row">
+        <button class="big-btn yt" onclick="startSession('YouTube','📺')"><span class="be">📺</span>YouTube</button>
+        <button class="big-btn game" onclick="startSession('Spill','🎮')"><span class="be">🎮</span>Spill</button>
+        <button class="big-btn stop" onclick="stopSession()"><span class="be">⏸️</span>Stopp</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>🛫 Reisedag-modus</h3>
+      <div class="travelmode">
+        <div class="tm-l">På flyet er skjerm helt greit!<br>Slå på for fri skjermtid i dag.</div>
+        <div class="toggle" id="travelToggle" onclick="toggleTravel()"><div class="knob"></div></div>
+      </div>
+      <h3 style="margin-top:14px;">📏 Slik funker energien</h3>
+      <div class="rule"><span class="rn">1</span><span>Du starter dagen med en pott skjermtid – lik hver dag, helt rettferdig.</span></div>
+      <div class="rule"><span class="rn">2</span><span>Bade, være ute, tegne og lese lader opp <b>ekstra</b> energi. 💪</span></div>
+      <div class="rule"><span class="rn">3</span><span>Trykk YouTube eller Spill når du starter, og Stopp når du er ferdig.</span></div>
+      <div class="adjust"><span class="adjust-lbl">Energi-pott i dag</span>
+        <div class="stepper"><button onclick="adjustBase(-15)">−</button><span class="val" id="baseVal">120 min</span><button onclick="adjustBase(15)">+</button></div>
+      </div>
+    </div>
+    <div class="footnote">Sommer-pott er satt litt høyere enn skoledager. Juster fritt til det som passer familien.</div>
+  </div>
+
+  <!-- ============ VERKTØY ============ -->
+  <div id="verktoy" class="page">
+    <div class="sec"><span class="dot" style="background:var(--green)"></span>Reflex sine superkrefter</div>
+    <div class="power-grid">
+      <div class="power"><div class="pi">💬</div><div class="pl">Ord-mester</div><div class="pd">Forstår og forklarer godt</div></div>
+      <div class="power"><div class="pi">🧩</div><div class="pl">Mønster-syn</div><div class="pd">Knallgod på figurer og rom</div></div>
+      <div class="power"><div class="pi">🎨</div><div class="pl">Tegne-kraft</div><div class="pd">Skaper hele tegneserie-univers</div></div>
+      <div class="power"><div class="pi">😊</div><div class="pl">Følelses-radar</div><div class="pd">Leser folk godt</div></div>
+      <div class="power"><div class="pi">🔍</div><div class="pl">Detektiv-hjerne</div><div class="pd">Tenker logisk og smart</div></div>
+      <div class="power"><div class="pi">⚖️</div><div class="pl">Rettferdig</div><div class="pd">Bryr seg om fair play</div></div>
+    </div>
+
+    <div class="sec"><span class="dot" style="background:var(--sky)"></span>Plan-verktøyet (7 H)</div>
+    <p style="font-size:.82rem;color:var(--soft);font-weight:600;margin:0 2px 10px;">Skal du gjøre noe stort? Fyll ut dette først, så blir det lettere å starte.</p>
+    <div id="hHost"></div>
+
+    <div class="sec"><span class="dot" style="background:var(--sea)"></span>Pusterom</div>
+    <div class="calm">
+      <div style="font-weight:800;">Føles det for mye? 🌊</div>
+      <div class="breath">Pust med<br>bølgen</div>
+      <div style="font-size:.85rem;opacity:.85;font-weight:700;">Pust inn når den vokser, ut når den krymper. Gjør det noen ganger – så roer hodet seg.</div>
+    </div>
+    <div class="footnote">Laget med utgangspunkt i Ludvigs egne styrker og interesser 💙</div>
+  </div>
+
+</div>
+
+<nav>
+  <button class="active" onclick="nav('idag',this)"><span class="ni">☀️</span>I dag</button>
+  <button onclick="nav('bari',this)"><span class="ni">✈️</span>Til Bari</button>
+  <button onclick="nav('italiano',this)"><span class="ni">🇮🇹</span>Italiano</button>
+  <button onclick="nav('skjerm',this)"><span class="ni">⚡</span>Skjermtid</button>
+  <button onclick="nav('verktoy',this)"><span class="ni">🛠️</span>Verktøy</button>
+</nav>
+
+<div id="pow">POW!</div>
+<div id="levelup">
+  <div class="lu-star">🌟</div>
+  <h2 id="luTitle">LEVEL UP!</h2>
+  <p id="luText">Reflex ble sterkere! Bra jobba, Ludvig.</p>
+  <button onclick="closeLevelUp()">FORTSETT</button>
+</div>
+
+<script>
+/* ---------- STORAGE ---------- */
+const mem={};
+const store={
+  get(k){try{const v=localStorage.getItem(k);return v===null?(k in mem?mem[k]:null):v;}catch(e){return k in mem?mem[k]:null;}},
+  set(k,v){try{localStorage.setItem(k,v);}catch(e){mem[k]=v;}}
+};
+
+/* ---------- DATO / NEDTELLING ---------- */
+const now=new Date();
+const todayKey=now.toISOString().slice(0,10);
+const departure=new Date('2026-07-02T12:00:00');
+const daysToTrip=Math.max(0,Math.ceil((departure - now)/(1000*60*60*24)));
+const dayNr=now.getDay();                       // 0=søn ... 6=lør
+const isWeekend=(dayNr===0||dayNr===6);
+const doy=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000); // dag i året (for daglig rotasjon)
+
+/* sommertider: senere opp, og leggetid utsatt 1t på ukedager / 2t i helger */
+const T={
+  wake:    isWeekend?'~09:00':'~08:00',
+  screenoff:isWeekend?'~22:45':'~21:45',
+  ready:   isWeekend?'23:15':'22:15',
+  lights:  isWeekend?'00:15':'23:15'
+};
+
+/* ---------- SOMMER-INNHOLD (roterer hver dag) ---------- */
+const summerFun=[
+  {ic:'🏊',t:'Bade eller svømme',h:'Ferskvann, basseng eller hav'},
+  {ic:'🚲',t:'Sykkeltur',h:'Utforsk et nytt sted'},
+  {ic:'🍦',t:'Is-tur',h:'Gå og kjøp en is'},
+  {ic:'🏕️',t:'Bygg en hule eller leir',h:'Inne eller ute'},
+  {ic:'🌳',t:'Tur i skogen eller på fjellet',h:'Ta med vann og en snack'},
+  {ic:'🎣',t:'Prøv noe nytt ute',h:'Fiske, klatre, utforske'},
+  {ic:'🏖️',t:'Strandtid',h:'Sand, sol og vann'},
+  {ic:'⚽',t:'Ballspill ute',h:'Fotball, basket eller noe annet'},
+  {ic:'🛹',t:'Rullebrett eller sparkesykkel',h:'Husk hjelm'},
+  {ic:'🧺',t:'Pikniktur',h:'Spis lunsj ute et fint sted'},
+  {ic:'🔭',t:'Oppdag noe nytt',h:'Et sted du ikke har vært før'},
+  {ic:'🎲',t:'Spillkveld uten skjerm',h:'Brettspill eller kort med familien'}
+];
+const helpTask=[
+  {ic:'🛏️',t:'Reile opp sengen',h:'Rask og grei'},
+  {ic:'🧺',t:'Legg klær i kurven',h:'Hold rommet ryddig'},
+  {ic:'🍽️',t:'Hjelp til med oppvask',h:'Sett inn eller tøm maskinen'},
+  {ic:'🌱',t:'Vann blomstene',h:'De trenger ekstra i varmen'},
+  {ic:'🧹',t:'Rydd rommet ditt',h:'Alt på sin plass'},
+  {ic:'🍴',t:'Dekk bordet',h:'Til et måltid'},
+  {ic:'🗑️',t:'Ta ut søppel/pant',h:'Sjekk sorteringen'},
+  {ic:'🧽',t:'Tørk av kjøkkenbenken',h:'Rydd det som står fremme'},
+  {ic:'👟',t:'Rydd i gangen',h:'Sko og jakker på plass'},
+  {ic:'🛒',t:'Hjelp til å bære inn',h:'Handleposer eller rydde varer'},
+  {ic:'🧦',t:'Match og brett sokkene',h:'Finn parene'},
+  {ic:'🪴',t:'Hjelp til ute',h:'Vanne, feie eller rydde'}
+];
+const creativeTask=[
+  {ic:'🎨',t:'Tegn Reflex på stranda',h:'Hva gjør han i sola?'},
+  {ic:'✏️',t:'Finn på en helt ny figur',h:'Venn eller skurk i Reflex-universet'},
+  {ic:'📓',t:'Tegn én tegneserie-rute',h:'Bare én rute med noe gøy'},
+  {ic:'🦹',t:'Design en skurk',h:'Hvilke krefter har den?'},
+  {ic:'✍️',t:'Skriv en kort historie',h:'Hva skjer med Reflex i dag?'},
+  {ic:'🌴',t:'Tegn Reflex i Italia',h:'Gelato, hav eller trulli-hus?'},
+  {ic:'🎮',t:'Finn på et minispill',h:'Tegn hvordan det ser ut'},
+  {ic:'🐱',t:'Tegn mafiakatten',h:'Gi den et kult antrekk'},
+  {ic:'🗺️',t:'Tegn et kart',h:'Til en verden du finner på'},
+  {ic:'💥',t:'Tegn en actionscene',h:'Med fart og effekter'},
+  {ic:'😎',t:'Tegn Reflex som superhelt',h:'Hva er superkraften?'},
+  {ic:'🎭',t:'Tegn samme figur i 3 humør',h:'Glad, sint og redd'},
+  {ic:'🏰',t:'Tegn et nytt sted i universet',h:'Hvor bor figurene dine?'},
+  {ic:'🎬',t:'Lag en kort tegneserie-stripe',h:'Tre ruter med start, midt og slutt'}
+];
+
+function buildQuests(){
+  const fun=summerFun[doy%summerFun.length];
+  const help=helpTask[(doy+4)%helpTask.length];
+  const creative=creativeTask[doy%creativeTask.length];
+  return [
+    {g:'morgen',gl:'🌅 Morgen',gd:'var(--sun)',items:[
+      {id:'opp',ic:'☀️',time:T.wake,t:'Stå opp i ro',h:'God morgen – ingen hast i ferien',xp:20,scr:0},
+      {id:'frokost',ic:'🥣',time:'',t:'Spis frokost',h:'Ta god tid',xp:20,scr:0},
+      {id:'stell',ic:'🧴',time:'',t:'Stell deg og smør solkrem',h:'Viktig når sola steker',xp:20,scr:0},
+    ]},
+    {g:'dagen',gl:'🏖️ Dagen',gd:'var(--sea)',items:[
+      {id:'fun',ic:fun.ic,time:'Sommer-moro',t:fun.t,h:fun.h,xp:30,scr:15},
+      {id:'ute',ic:'🌞',time:'',t:'Vær ute i 30 min',h:'Frisk luft gir energi',xp:25,scr:15},
+      {id:'tegne',ic:creative.ic,time:'Dagens kreative',t:creative.t,h:creative.h,xp:25,scr:10},
+      {id:'les',ic:'📚',time:'',t:'Les en tegneserie 15 min',h:'Manga teller! Velg selv',xp:25,scr:10},
+      {id:'help',ic:help.ic,time:'Dagens gjøremål',t:help.t,h:help.h,xp:25,scr:10},
+    ]},
+    {g:'kveld',gl:'🌙 Kveld',gd:'var(--terra)',items:[
+      {id:'skjermav',ic:'📵',time:T.screenoff,t:'Legg vekk skjermen',h:'Hjernen trenger ro før søvn',xp:25,scr:0},
+      {id:'sove',ic:'🪥',time:T.ready,t:'Gjør deg klar til natten',h:'Tannpuss og pysj',xp:20,scr:0},
+      {id:'lys',ic:'💤',time:T.lights,t:'Lyset av',h:'God natt, Reflex!',xp:25,scr:0},
+    ]}
+  ];
+}
+const QUESTS=buildQuests();
+
+/* ---------- REISEPLAN ---------- */
+const TRIP=[
+  {ic:'🌅',t:'Morgen hjemme',d:'Stå opp i ro, spis frokost, og pakk det aller siste i sekken.'},
+  {ic:'🚗',t:'Til Flesland',d:'Vi drar til Bergen lufthavn i god tid – bedre å være tidlig ute enn å stresse.'},
+  {ic:'🛂',t:'Innsjekk og sikkerhetskontroll',d:'Sekken på båndet, lommene tomme, og gå rolig gjennom porten. Helt vanlig – alle gjør det.'},
+  {ic:'⏳',t:'Vente ved gaten',d:'Litt venting før vi går om bord. Fint å tegne eller høre på noe.'},
+  {ic:'✈️',t:'Fly 1: Bergen → Oslo',d:'Kort tur, ca. 1 time. Tygg tyggis eller drikk litt ved take-off, så blir det godt i ørene.'},
+  {ic:'🔁',t:'Bytte fly i Oslo',d:'Vi har god tid i Oslo (noen timer). Finn riktig gate, spis litt, og slapp av – skjerm er helt greit her.'},
+  {ic:'🛫',t:'Fly 2: Oslo → Bari',d:'Lengre tur, ca. 3 timer. Perfekt til å se noe, tegne eller bare hvile.'},
+  {ic:'🌊',t:'Lande i Bari kl 19:15',d:'Velkommen til Italia! Varmt, sommer og ferie venter. 🇮🇹'}
+];
+
+/* ---------- PAKKELISTE ---------- */
+const PACK=[
+  {id:'pass',ic:'🛂',t:'Pass / ID (mamma og pappa passer på)'},
+  {id:'tegne',ic:'🎨',t:'Tegnesaker og skissebok'},
+  {id:'manga',ic:'📚',t:'Tegneserie å lese på flyet'},
+  {id:'nettbrett',ic:'🎮',t:'Nettbrett + lader (last ned før flyet!)'},
+  {id:'hodetlf',ic:'🎧',t:'Hodetelefoner'},
+  {id:'tyggis',ic:'🍬',t:'Tyggis/drikke til take-off'},
+  {id:'snack',ic:'🍪',t:'Snacks til reisen'},
+  {id:'genser',ic:'🧥',t:'Genser (kjølig på flyet)'},
+  {id:'bade',ic:'🩳',t:'Badebukse'},
+  {id:'solbr',ic:'🕶️',t:'Solbriller'},
+  {id:'caps',ic:'🧢',t:'Caps eller hatt'},
+  {id:'solkrem',ic:'🧴',t:'Solkrem'},
+  {id:'vann',ic:'💧',t:'Tom vannflaske (fyll etter kontrollen)'},
+  {id:'kos',ic:'⭐',t:'Noe kjekt hjemmefra som gjør deg rolig'}
+];
+
+/* ---------- 7 H ---------- */
+const HENE=[
+  {ab:'HVA',c:'var(--sky)',t:'Hva skal jeg gjøre?',s:'Selve oppgaven',ph:'F.eks: Pakke sekken min...'},
+  {ab:'HVF',c:'var(--terra)',t:'Hvorfor?',s:'Hva er meningen',ph:'F.eks: Så jeg har alt jeg trenger'},
+  {ab:'HVR',c:'var(--green)',t:'Hvor?',s:'Sted',ph:'F.eks: På rommet mitt'},
+  {ab:'HVM',c:'var(--coral)',t:'Hvem med?',s:'Alene eller sammen',ph:'F.eks: Alene, mamma hjelper'},
+  {ab:'HVD',c:'var(--sea)',t:'Hvordan?',s:'Steg for steg',ph:'Steg 1... Steg 2...'},
+  {ab:'HVL',c:'var(--sun)',t:'Hvor lenge?',s:'Tid eller antall',ph:'F.eks: 15 min'},
+  {ab:'ETT',c:'var(--green)',t:'Hva skjer etterpå?',s:'Belønning / neste',ph:'F.eks: Spille en runde'}
+];
+
+/* ---------- STATE ---------- */
+let S={date:todayKey,xp:0,level:1,streak:0,done:[],used:0,earned:0,base:120,travel:false};
+function load(){
+  const raw=store.get('reflexSummer');
+  if(raw){try{S=JSON.parse(raw);}catch(e){}}
+  if(S.date!==todayKey){
+    const did=(S.done&&S.done.length>0);
+    S.streak=did?(S.streak||0)+1:0;
+    S.date=todayKey;S.done=[];S.used=0;S.earned=0;S.base=120;S.travel=false;
+  }
+  if(!S.done)S.done=[];
+}
+function save(){store.set('reflexSummer',JSON.stringify(S));}
+
+/* ---------- REFLEX SVG ---------- */
+function cat(mood){
+  const glasses = mood==='cool'
+    ? '<rect x="28" y="40" width="18" height="11" rx="3" fill="#143055"/><rect x="54" y="40" width="18" height="11" rx="3" fill="#143055"/><rect x="46" y="44" width="8" height="3" fill="#143055"/>'
+    : '';
+  const eyes = mood==='cool' ? ''
+    : mood==='sleepy'
+      ? '<path d="M30 45 q7 6 14 0" stroke="#143055" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M56 45 q7 6 14 0" stroke="#143055" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    : mood==='happy'
+      ? '<path d="M30 47 q7 -8 14 0" stroke="#143055" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M56 47 q7 -8 14 0" stroke="#143055" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="37" cy="45" r="5" fill="#143055"/><circle cx="63" cy="45" r="5" fill="#143055"/><circle cx="39" cy="43" r="1.6" fill="#fff"/><circle cx="65" cy="43" r="1.6" fill="#fff"/>';
+  const mouth = (mood==='happy'||mood==='cool')
+      ? '<path d="M42 58 q8 9 16 0" stroke="#143055" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    : mood==='sleepy'
+      ? '<circle cx="50" cy="59" r="3" fill="#143055"/>'
+      : '<path d="M44 57 q6 5 12 0" stroke="#143055" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+  const z = mood==='sleepy' ? '<text x="74" y="30" font-family="Bangers" font-size="14" fill="#E07A3F">z</text><text x="82" y="20" font-family="Bangers" font-size="10" fill="#E07A3F">z</text>' : '';
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <polygon points="22,28 30,8 44,24" fill="#13B5C9" stroke="#143055" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="78,28 70,8 56,24" fill="#13B5C9" stroke="#143055" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="50" cy="50" r="32" fill="#13B5C9" stroke="#143055" stroke-width="3.5"/>
+    <ellipse cx="50" cy="55" rx="22" ry="20" fill="#FFF3DC"/>
+    ${eyes}${glasses}
+    <polygon points="47,52 53,52 50,57" fill="#FF6F61"/>
+    ${mouth}
+    <line x1="14" y1="50" x2="28" y2="52" stroke="#143055" stroke-width="2"/>
+    <line x1="14" y1="57" x2="28" y2="57" stroke="#143055" stroke-width="2"/>
+    <line x1="86" y1="50" x2="72" y2="52" stroke="#143055" stroke-width="2"/>
+    <line x1="86" y1="57" x2="72" y2="57" stroke="#143055" stroke-width="2"/>
+    ${z}</svg>`;
+}
+function setReflex(mood,speech){document.getElementById('reflexBox').innerHTML=cat(mood);if(speech)document.getElementById('reflexSpeech').textContent=speech;}
+
+/* ---------- RENDER ---------- */
+function renderQuests(){
+  let html='';
+  // Reiseprep-oppgaver
+  const tripPrepQuests=[
+    {id:'reiseprep',ic:'🎒',t:'Start å pakke sekken',h:'Tegnesaker, badedrakt, solfaktor – gå til pakkelista'},
+    {id:'reisedokumenter',ic:'📄',t:'Sjekk pass og dokumenter',h:'Hva trenger du med i flyet? Spør mamma eller pappa'}
+  ];
+  
+  QUESTS.forEach(grp=>{
+    html+=`<div class="sec"><span class="dot" style="background:${grp.gd}"></span>${grp.gl}</div>`;
+    grp.items.forEach(q=>{
+      const done=S.done.includes(q.id);
+      html+=`<div class="quest ${done?'done':''}" onclick="toggleQuest('${q.id}')">
+        <div class="q-ic">${q.ic}</div><div class="q-mid">
+        ${q.time?`<div class="q-time">${q.time}</div>`:''}
+        <div class="q-title">${q.t}</div><div class="q-hint">${q.h}</div>
+        <div class="q-rewards"><span class="pill xp">+${q.xp} XP</span>${q.scr?`<span class="pill scr">+${q.scr} min ⚡</span>`:''}</div>
+        </div><div class="q-check">✓</div></div>`;
+    });
+  });
+  document.getElementById('questHost').innerHTML=html;
+}
+function findQuest(id){for(const g of QUESTS)for(const q of g.items)if(q.id===id)return q;return null;}
+function toggleQuest(id){
+  const q=findQuest(id);
+  if(!q){
+    // Håndter spesielle reiseprep-oppgaver
+    const tripPrep={
+      reiseprep:{xp:50,scr:20},
+      reisedokumenter:{xp:25,scr:0}
+    };
+    if(!tripPrep[id])return;
+    const tp=tripPrep[id];
+    const i=S.done.indexOf(id);
+    if(i===-1){
+      S.done.push(id);S.xp+=tp.xp;S.earned+=tp.scr;powAt();floatText('+'+tp.xp+' XP');checkLevel();cheer();
+    }else{
+      S.done.splice(i,1);S.xp=Math.max(0,S.xp-tp.xp);S.earned=Math.max(0,S.earned-tp.scr);
+    }
+    save();renderQuests();renderHero();renderEnergy();
+    return;
+  }
+  const i=S.done.indexOf(id);
+  if(i===-1){S.done.push(id);S.xp+=q.xp;S.earned+=q.scr;powAt();floatText('+'+q.xp+' XP');checkLevel();cheer();}
+  else{S.done.splice(i,1);S.xp=Math.max(0,S.xp-q.xp);S.earned=Math.max(0,S.earned-q.scr);}
+  save();renderQuests();renderHero();renderEnergy();
+}
+
+function openExplorer(){
+  const search='things to do for 11 year old in Puglia Bari Italy';
+  const url='https://www.google.com/search?q='+encodeURIComponent(search);
+  window.open(url,'_blank');
+  // Teller også som gjort hvis de åpner den
+  if(!S.done.includes('explorer')){
+    S.done.push('explorer');S.xp+=30;S.earned+=0;powAt();floatText('+30 XP');checkLevel();
+    save();renderQuests();renderHero();renderEnergy();
+  }
+}
+
+function xpForLevel(l){return l*100;}
+function checkLevel(){while(S.xp>=xpForLevel(S.level)){S.xp-=xpForLevel(S.level);S.level++;showLevelUp();}}
+function renderHero(){
+  document.getElementById('lvlBadge').textContent='LVL '+S.level;
+  const need=xpForLevel(S.level);
+  document.getElementById('xpFill').style.width=Math.min(100,(S.xp/need)*100)+'%';
+  document.getElementById('xpTxt').textContent=S.xp+' / '+need+' XP';
+  document.getElementById('streakNum').textContent=S.streak;
+}
+
+/* ---------- ENERGY ---------- */
+let timer=null,timerSecs=0,running=false;
+function totalEnergy(){return S.base+Math.min(S.earned,60);}
+function remainingMin(){return Math.max(0,totalEnergy()-S.used);}
+function renderEnergy(){
+  const bat=document.getElementById('battery');
+  if(S.travel){
+    bat.classList.add('free');bat.classList.remove('low');
+    document.getElementById('batteryFill').style.width='100%';
+    document.getElementById('batteryTxt').textContent='FRI ✈️';
+    document.getElementById('energyNote').innerHTML='Reisedag – skjerm er helt greit i dag! 🛫';
+  }else{
+    bat.classList.remove('free');
+    const total=totalEnergy(),rem=remainingMin(),pct=total>0?(rem/total)*100:0;
+    document.getElementById('batteryFill').style.width=pct+'%';
+    bat.classList.toggle('low',pct<25);
+    document.getElementById('batteryTxt').textContent=rem+' min';
+    const bonus=Math.min(S.earned,60);
+    document.getElementById('energyNote').innerHTML=bonus>0?`Pott ${S.base} min + <b>${bonus} min</b> opptjent! 🔋`:'Gjør oppdrag for å lade opp mer! 🔋';
+  }
+  document.getElementById('baseVal').textContent=S.base+' min';
+  document.getElementById('travelToggle').classList.toggle('on',S.travel);
+}
+function toggleTravel(){S.travel=!S.travel;save();renderEnergy();
+  setReflex(S.travel?'cool':moodForTime(),S.travel?'God tur! Nyt skjermen på flyet ✈️':speechForTime());}
+function startSession(label,emoji){
+  if(S.travel){setReflex('cool','Reisedag – bare kos deg! ✈️');return;}
+  if(remainingMin()<=0){setReflex('sleepy','Energien er tom – lader til i morgen 😴');return;}
+  if(running)stopSession();
+  running=true;timerSecs=0;
+  document.getElementById('runningInfo').classList.add('on');
+  document.getElementById('runLabel').textContent=label+' '+emoji;
+  setReflex('cool','Ha det gøy! Jeg passer på energien ⏱️');
+  timer=setInterval(()=>{timerSecs++;
+    if(timerSecs%60===0){S.used++;save();renderEnergy();
+      if(remainingMin()<=0){stopSession();setReflex('sleepy','Energien er tom for i dag 😴');return;}
+      if(remainingMin()===10)floatText('10 min igjen!');}
+    document.getElementById('runClock').textContent=String(Math.floor(timerSecs/60)).padStart(2,'0')+':'+String(timerSecs%60).padStart(2,'0');
+  },1000);
+}
+function stopSession(){if(!running)return;clearInterval(timer);running=false;
+  document.getElementById('runningInfo').classList.remove('on');document.getElementById('runClock').textContent='00:00';
+  setReflex(moodForTime(),'Fint! Du har '+remainingMin()+' min igjen 👍');save();renderEnergy();}
+function adjustBase(d){S.base=Math.max(0,Math.min(300,S.base+d));save();renderEnergy();}
+
+/* ---------- TRIP / PACK / 7H ---------- */
+function renderTrip(){
+  let html='';
+  TRIP.forEach((s,i)=>{html+=`<div class="step"><div class="bullet"><div class="circle">${s.ic}</div><div class="line"></div></div>
+    <div class="body"><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>`;});
+  document.getElementById('tripSteps').innerHTML=html;
+}
+function renderPack(){
+  let html='';
+  PACK.forEach(p=>{const on=(store.get('pack_'+p.id)==='1');
+    html+=`<div class="pack ${on?'on':''}" onclick="togglePack('${p.id}',this)"><span class="pi">${p.ic}</span><span class="pt">${p.t}</span><span class="pc">✓</span></div>`;});
+  document.getElementById('packHost').innerHTML=html;
+}
+function togglePack(id,el){const on=el.classList.toggle('on');store.set('pack_'+id,on?'1':'0');if(on)floatText('✓');}
+function renderHene(){
+  let html='';
+  HENE.forEach((h,idx)=>{const saved=store.get('heneS_'+idx)||'';
+    html+=`<div class="h-card"><div class="h-top"><div class="h-letter" style="background:${h.c}">${h.ab}</div>
+      <div><div class="h-title">${h.t}</div><div class="h-sub">${h.s}</div></div></div>
+      <textarea class="h-answer" data-idx="${idx}" placeholder="${h.ph}">${saved}</textarea></div>`;});
+  document.getElementById('hHost').innerHTML=html;
+  document.querySelectorAll('.h-answer').forEach(t=>t.addEventListener('input',e=>store.set('heneS_'+e.target.dataset.idx,e.target.value)));
+}
+
+/* ---------- FX ---------- */
+function powAt(){const p=document.getElementById('pow');p.classList.remove('go');void p.offsetWidth;p.classList.add('go');}
+function floatText(txt){const f=document.createElement('div');f.className='float';f.textContent=txt;
+  f.style.left=(window.innerWidth/2-30)+'px';f.style.top='45%';document.body.appendChild(f);setTimeout(()=>f.remove(),1000);}
+const cheers=['Bra jobba!','Sånn ja!','Du er på!','Kjempebra!','Reflex jubler!','Nice!','Sommer-konge!'];
+function cheer(){setReflex('happy',cheers[Math.floor(Math.random()*cheers.length)]);setTimeout(()=>setReflex(moodForTime(),speechForTime()),1600);}
+function showLevelUp(){document.getElementById('luTitle').textContent='LEVEL '+S.level+'!';
+  document.getElementById('luText').textContent='Reflex ble sterkere! Kjempebra jobba, Ludvig. 🐾';
+  document.getElementById('levelup').classList.add('show');}
+function closeLevelUp(){document.getElementById('levelup').classList.remove('show');}
+function moodForTime(){if(S.travel)return 'cool';const h=new Date().getHours();return (h>=21||h<6)?'sleepy':'cool';}
+function speechForTime(){
+  const h=new Date().getHours();
+  if(daysToTrip>0&&daysToTrip<=7&&h>=9&&h<21)return daysToTrip+' dager til Bari! 🇮🇹';
+  if(h<9)return 'God morgen! Nyt sommerdagen ☀️';
+  if(h>=21)return 'Snart leggetid – godt jobba i dag 🌙';
+  const left=QUESTS.flatMap(g=>g.items).filter(q=>!S.done.includes(q.id)).length;
+  return left>0?('Du har '+left+' oppdrag igjen i dag!'):'Alle oppdrag gjort – nyt ferien! 🏖️';
+}
+
+/* ---------- NAV ---------- */
+function nav(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');window.scrollTo(0,0);}
+
+/* ---------- INIT ---------- */
+load();
+document.getElementById('cdNum').textContent=daysToTrip;
+document.getElementById('cdNum2').textContent=daysToTrip;
+if(daysToTrip===0){document.getElementById('cdSub').textContent='I dag bærer det av gårde! ✈️';}
+renderQuests();renderHero();renderEnergy();renderTrip();renderPack();renderHene();
+setReflex(moodForTime(),speechForTime());
+</script>
+</body>
+</html>
