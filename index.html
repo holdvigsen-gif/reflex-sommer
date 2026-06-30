@@ -801,7 +801,7 @@ async function startGoogleLogin() {
 
 async function loadCalendar() {
   const token = localStorage.getItem('gAccessToken');
-  if (!token) return;
+  if (!token) { document.getElementById('cal-login-section').style.display='block'; document.getElementById('cal-events-section').style.display='none'; return; }
   document.getElementById('cal-login-section').style.display='none';
   document.getElementById('cal-events-section').style.display='block';
   document.getElementById('cal-loading').style.display='block';
@@ -810,7 +810,7 @@ async function loadCalendar() {
     const d = await r.json();
     document.getElementById('cal-loading').style.display='none';
     if (d.error) {
-      if (d.error.includes('invalid')||d.error.includes('expired')) {
+      if (d.error.includes('invalid')||d.error.includes('expired')||d.error==='token_expired') {
         localStorage.removeItem('gAccessToken');
         document.getElementById('cal-login-section').style.display='block';
         document.getElementById('cal-events-section').style.display='none';
