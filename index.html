@@ -210,7 +210,19 @@
   #levelup h2{font-family:'Bangers',cursive;font-size:2.3rem;letter-spacing:1.5px;color:var(--sun);margin:8px 0;}
   #levelup p{font-weight:700;font-size:1rem;opacity:.9;max-width:300px;}
   #levelup button{margin-top:20px;background:var(--green);border:3px solid #fff;color:#fff;font-family:'Bangers';font-size:1.3rem;letter-spacing:1px;padding:9px 26px;border-radius:14px;cursor:pointer;}
-  .footnote{text-align:center;color:var(--soft);font-size:.72rem;font-weight:600;margin:18px 4px 6px;line-height:1.5;}
+  .wotd-box{background:linear-gradient(135deg,var(--terra),var(--sun));border:3px solid var(--ink);border-radius:20px;box-shadow:5px 5px 0 var(--ink);padding:16px;margin-top:12px;cursor:pointer;transition:transform .12s,box-shadow .12s;position:relative;overflow:hidden;user-select:none;}
+.wotd-box:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink);}
+.wotd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.wotd-label{font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.85);}
+.wotd-flag{font-size:1.4rem;}
+.wotd-italian{font-family:'Bangers',cursive;font-size:2.4rem;letter-spacing:1.5px;color:#fff;text-shadow:2px 2px 0 var(--ink);line-height:1.1;}
+.wotd-pronunciation{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.8);margin-top:2px;font-style:italic;}
+.wotd-norwegian{font-size:1rem;font-weight:800;color:rgba(255,255,255,.95);margin-top:6px;}
+.wotd-hint{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.75);margin-top:3px;}
+.wotd-tap{font-size:.73rem;font-weight:800;color:rgba(255,255,255,.75);margin-top:10px;display:flex;align-items:center;gap:5px;justify-content:center;}
+.wotd-box.speaking{animation:wotdPulse .55s ease-in-out infinite;}
+@keyframes wotdPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+.footnote{text-align:center;color:var(--soft);font-size:.72rem;font-weight:600;margin:18px 4px 6px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -242,6 +254,17 @@
     <div class="count" onclick="nav('bari',document.querySelectorAll('nav button')[2])">
       <div class="num" id="cdNum">7</div>
       <div class="ctxt">dager til Bari! 🇮🇹<small id="cdSub">Avreise torsdag 2. juli</small></div>
+    </div>
+    <div class="wotd-box" id="wotdBox" onclick="speakWOTD()">
+      <div class="wotd-header">
+        <div class="wotd-label">🇮🇹 Dagens italienske ord</div>
+        <div class="wotd-flag">🔊</div>
+      </div>
+      <div class="wotd-italian" id="wotdWord"></div>
+      <div class="wotd-pronunciation" id="wotdPron"></div>
+      <div class="wotd-norwegian" id="wotdNorwegian"></div>
+      <div class="wotd-hint" id="wotdHint"></div>
+      <div class="wotd-tap" id="wotdTapHint">👆 Trykk for å høre uttalen</div>
     </div>
 
     <div class="sec"><span class="dot" style="background:var(--terra)"></span>Reise-forberedelser</div>
@@ -788,9 +811,63 @@ document.getElementById('cdNum').textContent=daysToTrip;
 document.getElementById('cdNum2').textContent=daysToTrip;
 if(daysToTrip===0){document.getElementById('cdSub').textContent='I dag bærer det av gårde! ✈️';}
 renderQuests();renderHero();renderEnergy();renderTrip();renderPack();renderHene();
+renderWOTD();
 setReflex(moodForTime(),speechForTime());
 
 /* ---------- KALENDER ---------- */
+/* ---------- DAGENS ITALIENSKE ORD ---------- */
+const WOTD_LIST=[
+{w:'Ciao',p:'cha-o',n:'Hei / ha det',h:'Brukes både som hei og ha det!'},
+{w:'Sole',p:'so-leh',n:'Sol',h:'Il sole = solen'},
+{w:'Mare',p:'mah-reh',n:'Hav / sjø',h:'Andiamo al mare! = La oss dra til havet!'},
+{w:'Gelato',p:'dze-lah-to',n:'Is',h:'Den ekte italienske isen!'},
+{w:'Pizza',p:'peet-tsa',n:'Pizza',h:'Kommer fra Napoli!'},
+{w:'Gatto',p:'gaht-to',n:'Katt',h:'Un gatto = en katt'},
+{w:'Bello',p:'bel-lo',n:'Vakker / fin',h:'Che bello! = Så fint!'},
+{w:'Grazie',p:'graht-tsye',n:'Takk',h:'Alltid hyggelig å si!'},
+{w:'Amico',p:'ah-mee-ko',n:'Venn',h:'Amico mio = vennen min'},
+{w:'Acqua',p:'ahk-kwa',n:'Vann',h:"Un'acqua, per favore!"},
+{w:'Casa',p:'kah-za',n:'Hjem / hus',h:'A casa = hjemme'},
+{w:'Spiaggia',p:'spee-ahd-ja',n:'Strand',h:'Alla spiaggia! = Til stranden!'},
+{w:'Buono',p:'bwoh-no',n:'God / deilig',h:'Che buono! = Så godt!'},
+{w:'Forte',p:'for-teh',n:'Sterk / kul',h:'Che forte! = Så kult!'},
+{w:'Pesce',p:'peh-sheh',n:'Fisk',h:'Il pesce = fisken'},
+{w:'Colori',p:'ko-loh-ree',n:'Farger',h:'Tutti i colori = alle fargene'},
+{w:'Pane',p:'pah-neh',n:'Brød',h:'Focaccia er et type brød!'},
+{w:'Volare',p:'vo-lah-reh',n:'Å fly',h:'Voglio volare = jeg vil fly'},
+{w:'Bambino',p:'bam-bee-no',n:'Barn / gutt',h:'Un bambino simpatico = en hyggelig gutt'},
+{w:'Avventura',p:'ahv-ven-too-ra',n:'Eventyr',h:"Un'avventura italiana = et italiensk eventyr"},
+{w:'Magico',p:'mah-dzee-ko',n:'Magisk',h:'È magico! = Det er magisk!'},
+{w:'Divertente',p:'dee-ver-ten-teh',n:'Morsomt / gøy',h:'È divertente! = Det er gøy!'},
+{w:'Stella',p:'stel-la',n:'Stjerne',h:'Le stelle = stjernene'},
+{w:'Musica',p:'moo-zee-ka',n:'Musikk',h:'La musica italiana = italiensk musikk'},
+{w:'Sogno',p:'son-yo',n:'Drøm',h:'Un bel sogno = en fin drøm'},
+{w:'Coraggio',p:'ko-rahd-jo',n:'Mot',h:'Hai coraggio! = Du har mot!'},
+{w:'Camminare',p:'kahm-mee-nah-reh',n:'Å gå',h:'Andiamo a camminare = la oss gå en tur'},
+{w:'Ridere',p:'ree-deh-reh',n:'Å le',h:'Mi fa ridere! = Det får meg til å le!'},
+{w:'Famiglia',p:'fa-mee-lya',n:'Familie',h:'La mia famiglia = familien min'},
+{w:'Cielo',p:'cheh-lo',n:'Himmel',h:'Un cielo blu = en blå himmel'}
+];
+function renderWOTD(){
+  const w=WOTD_LIST[doy%WOTD_LIST.length];
+  document.getElementById('wotdWord').textContent=w.w;
+  document.getElementById('wotdPron').textContent='['+w.p+']';
+  document.getElementById('wotdNorwegian').textContent='= '+w.n;
+  document.getElementById('wotdHint').textContent=w.h;
+}
+function speakWOTD(){
+  const w=WOTD_LIST[doy%WOTD_LIST.length];
+  const box=document.getElementById('wotdBox');
+  if(!window.speechSynthesis){document.getElementById('wotdTapHint').textContent='🔇 Lyd ikke støttet i denne nettleseren';return;}
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(w.w);
+  utt.lang='it-IT';utt.rate=0.85;utt.pitch=1.1;
+  utt.onstart=()=>{box.classList.add('speaking');document.getElementById('wotdTapHint').textContent='🔊 Spiller av...';};
+  utt.onend=()=>{box.classList.remove('speaking');document.getElementById('wotdTapHint').textContent='👆 Trykk for å høre igjen';};
+  utt.onerror=()=>{box.classList.remove('speaking');document.getElementById('wotdTapHint').textContent='👆 Trykk for å høre uttalen';};
+  window.speechSynthesis.speak(utt);
+}
+
 async function startGoogleLogin() {
   try {
     const r = await fetch('/.netlify/functions/auth-start');
