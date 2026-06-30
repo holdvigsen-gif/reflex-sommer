@@ -11,7 +11,7 @@ function httpGet(url, token) {
     https.get(options, (res) => {
       let d = '';
       res.on('data', c => d += c);
-      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
+      res.on('end', () => { try { resolve({ status: res.statusCode, body: JSON.parse(d) }); } catch(e) { reject(e); } });
     }).on('error', reject);
   });
 }
@@ -27,7 +27,6 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  // Read token from query string (passed from frontend localStorage)
   const accessToken = (event.queryStringParameters || {}).token;
 
   if (!accessToken) {
@@ -35,7 +34,14 @@ exports.handler = async (event) => {
   }
 
   try {
-    const calList = await httpGet('https://www.googleapis.com/calendar/v3/users/me/calendarList', accessToken);
+    const calListRes = await httpGet('https://www.googleapis.com/calendar/v3/users/me/calendarList', accessToken);
+
+    // Token expired or invalid
+    if (calListRes.status === 401) {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'token_expired' }) };
+    }
+
+    const calList = calListRes.body;
     const targetCal = (calList.items || []).find(c => c.summary && c.summary.toLowerCase().includes('ludvig'));
     const calId = targetCal ? encodeURIComponent(targetCal.id) : 'primary';
 
@@ -43,7 +49,8 @@ exports.handler = async (event) => {
     const later = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
     const eventsUrl = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?timeMin=${encodeURIComponent(now)}&timeMax=${encodeURIComponent(later)}&singleEvents=true&orderBy=startTime&maxResults=25`;
 
-    const eventsData = await httpGet(eventsUrl, accessToken);
+    const eventsRes = await httpGet(eventsUrl, accessToken);
+    const eventsData = eventsRes.body;
 
     const events = (eventsData.items || []).map(e => ({
       id: e.id,
