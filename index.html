@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Holdvigsen – Sommer</title>
+<title>Holdvigsen – London</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap');
 
   :root{
     --ink:#143055;
     --sea:#13B5C9;
-    --sky:#2D9CFF;
+    --sky:#1D63D1;
     --sun:#FFC73C;
-    --coral:#FF6F61;
+    --coral:#DA291C;
     --terra:#E07A3F;
     --green:#27CE8F;
     --sand:#FFF3DC;
@@ -222,6 +222,12 @@
 .wotd-tap{font-size:.73rem;font-weight:800;color:rgba(255,255,255,.75);margin-top:10px;display:flex;align-items:center;gap:5px;justify-content:center;}
 .wotd-box.speaking{animation:wotdPulse .55s ease-in-out infinite;}
 @keyframes wotdPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+.quiz-box{background:linear-gradient(135deg,#1D63D1,#DA291C);border:3px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:14px;margin:12px 0;color:#fff;}
+.quiz-label{font-size:.75rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.9;}
+.quiz-q{font-weight:800;font-size:1rem;margin:6px 0 10px;line-height:1.4;}
+.quiz-a{display:none;background:rgba(255,255,255,.18);border-radius:10px;padding:10px;font-weight:800;margin-bottom:10px;line-height:1.4;}
+.quiz-a.show{display:block;}
+.quiz-btn{width:100%;border:3px solid var(--ink);background:var(--sun);color:var(--ink);font-family:'Bangers',cursive;font-size:1.05rem;letter-spacing:1px;border-radius:12px;padding:9px;cursor:pointer;}
 .footnote{text-align:center;color:var(--soft);font-size:.72rem;font-weight:600;margin:18px 4px 6px;line-height:1.5;}
 </style>
 </head>
@@ -229,7 +235,7 @@
 
 <header>
   <div class="topbar">
-    <div class="brand">HOLDVIGSEN <span>SOMMER</span> ☀️</div>
+    <div class="brand">HOLDVIGSEN <span>LONDON</span> 🇬🇧</div>
     <div class="streak">🔥 <span id="streakNum">0</span></div>
   </div>
 
@@ -237,7 +243,7 @@
     <div class="hero-sun"></div>
     <div class="reflex" id="reflexBox"></div>
     <div class="hero-info">
-      <div class="bubble" id="reflexSpeech">Sommerferie! Hva skal vi finne på?</div>
+      <div class="bubble" id="reflexSpeech">London neste! Og du – dagens fotballquiz venter ⚽</div>
       <div class="lvl-row">
         <div class="lvl-badge" id="lvlBadge">LVL 1</div>
         <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
@@ -251,13 +257,13 @@
 
   <!-- ============ I DAG ============ -->
   <div id="idag" class="page active">
-    <div class="count" onclick="nav('bari',document.querySelectorAll('nav button')[2])">
-      <div class="num" id="cdNum">7</div>
-      <div class="ctxt">dager til Bari! 🇮🇹<small id="cdSub">Avreise torsdag 2. juli</small></div>
+    <div class="count" onclick="setTripDate()">
+      <div class="num" id="cdNum">?</div>
+      <div class="ctxt">dager til London! 🇬🇧<small id="cdSub">med Besto og Farfar ❤️</small></div>
     </div>
     <div class="wotd-box" id="wotdBox" onclick="speakWOTD()">
       <div class="wotd-header">
-        <div class="wotd-label">🇮🇹 Dagens italienske ord</div>
+        <div class="wotd-label">🇬🇧 Dagens engelske ord</div>
         <div class="wotd-flag">🔊</div>
       </div>
       <div class="wotd-italian" id="wotdWord"></div>
@@ -267,13 +273,20 @@
       <div class="wotd-tap" id="wotdTapHint">👆 Trykk for å høre uttalen</div>
     </div>
 
+    <div class="quiz-box">
+      <div class="quiz-label">⚽ Dagens fotballspørsmål</div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-a" id="quizA"></div>
+      <button class="quiz-btn" id="quizBtn" onclick="revealQuiz()">VIS SVAR (+25 XP)</button>
+    </div>
+
     <div class="sec"><span class="dot" style="background:var(--terra)"></span>Reise-forberedelser</div>
     <div class="quest" onclick="toggleQuest('reiseprep')">
       <div class="q-ic">🎒</div>
       <div class="q-mid">
         <div class="q-time">Neste uke</div>
         <div class="q-title">Start å pakke sekken</div>
-        <div class="q-hint">Tegnesaker, badedrakt, solfaktor – gå til pakkelista</div>
+        <div class="q-hint">Tegnesaker, regnjakke, drakta – gå til pakkelista</div>
         <div class="q-rewards"><span class="pill xp">+50 XP</span><span class="pill scr">+20 min ⚡</span></div>
       </div>
       <div class="q-check">✓</div>
@@ -283,8 +296,8 @@
       <div class="q-ic">🔍</div>
       <div class="q-mid">
         <div class="q-time">Planlegging</div>
-        <div class="q-title">Søk etter gøye ting å gjøre i Bari</div>
-        <div class="q-hint">Hva kan en 11-åring gjøre i Puglia? Åpne nettleseren</div>
+        <div class="q-title">Søk etter gøye ting å gjøre i London</div>
+        <div class="q-hint">Fotball, dinosaurer og tegneserier? Åpne nettleseren</div>
         <div class="q-rewards"><span class="pill xp">+30 XP</span></div>
       </div>
       <div class="q-check">✓</div>
@@ -303,27 +316,27 @@
 
     <div class="sec"><span class="dot" style="background:var(--sky)"></span>Dagens oppdrag</div>
     <div id="questHost"></div>
-    <div class="footnote">Sommertider: senere opp, og leggetid 1 time senere på ukedager / 2 timer i helger. Gjøremål og kreativ oppgave er nye hver dag 🔄</div>
+    <div class="footnote">Gjøremål, fotballspørsmål og kreativ oppgave er nye hver dag 🔄 Duolingo teller alltid!</div>
   </div>
 
   <!-- ============ TIL BARI ============ -->
   <div id="bari" class="page">
     <div class="dest">
-      <h2>🌊 BARI</h2>
-      <p>Puglia · Sør-Italia · hælen på støvelen 🇮🇹</p>
+      <h2>🎡 LONDON</h2>
+      <p>England · på tur med Besto og Farfar 🇬🇧</p>
     </div>
 
-    <div class="count" style="margin-top:12px;">
-      <div class="num" id="cdNum2">7</div>
-      <div class="ctxt">dager igjen!<small>Torsdag 2. juli</small></div>
+    <div class="count" style="margin-top:12px;" onclick="setTripDate()">
+      <div class="num" id="cdNum2">?</div>
+      <div class="ctxt">dager igjen!<small id="cdSub2">Trykk for å sette reisedato</small></div>
     </div>
 
     <div class="sec"><span class="dot" style="background:var(--sky)"></span>Slik reiser vi</div>
     <div class="flightcard">
-      <div class="leg"><span class="code">DY617</span> Bergen <span class="arrow"></span> Oslo</div>
-      <div class="leg-time">12:00 → 12:55 · ca. 1 time</div>
-      <div class="leg"><span class="code">DY1864</span> Oslo <span class="arrow"></span> Bari</div>
-      <div class="leg-time">16:05 → 19:15 · ca. 3 timer · mellomlanding/bytte i Oslo</div>
+      <div class="leg"><span class="code">✈️</span> Bergen <span class="arrow"></span> London</div>
+      <div class="leg-time">Direktefly · ca. 1 t 50 min over Nordsjøen</div>
+      <div class="leg"><span class="code">🚇</span> Flyplassen <span class="arrow"></span> byen</div>
+      <div class="leg-time">Tog eller Underground – "Mind the gap!" (detaljer fylles inn når billettene er klare)</div>
     </div>
 
     <div class="sec"><span class="dot" style="background:var(--sun)"></span>Reisedagen steg for steg</div>
@@ -334,50 +347,61 @@
     <div id="packHost"></div>
 
     <div class="sec"><span class="dot" style="background:var(--terra)"></span>Dette kan vi glede oss til</div>
-    <div class="italian"><span class="ifl">🍕</span><div><b>Ekte italiensk pizza & focaccia</b><br><span>Puglia er kjent for focaccia barese</span></div></div>
-    <div class="italian"><span class="ifl">🍦</span><div><b>Gelato hver dag?</b><br><span>Italiensk is slår alt</span></div></div>
-    <div class="italian"><span class="ifl">🏖️</span><div><b>Bade i varmt hav</b><br><span>Mye varmere enn i Bergen!</span></div></div>
-    <div class="italian"><span class="ifl">🏠</span><div><b>Trulli-husene i Alberobello</b><br><span>Runde hus med spisse tak – som fra en tegneserie</span></div></div>
-    <div class="footnote">Reise-info er hentet fra familiens reisekvittering (Norwegian, ref. X723V8).</div>
+    <div class="italian"><span class="ifl">⚽</span><div><b>Fotballstadion på ekte</b><br><span>Stadiontur i London – eller togtur til Old Trafford?</span></div></div>
+    <div class="italian"><span class="ifl">📚</span><div><b>Forbidden Planet</b><br><span>Gigantisk tegneserie- og mangabutikk midt i London</span></div></div>
+    <div class="italian"><span class="ifl">🦖</span><div><b>Natural History Museum</b><br><span>Dinosaurer, blåhval og gratis inngang</span></div></div>
+    <div class="italian"><span class="ifl">🚌</span><div><b>Rød dobbeltdekker & Big Ben</b><br><span>Sitt øverst helt fremme!</span></div></div>
+    <div class="italian"><span class="ifl">🍟</span><div><b>Fish & chips</b><br><span>Må smakes minst én gang</span></div></div>
+    <div class="footnote">Reise-info fylles inn når billettene er bestilt. Trykk på nedtellingen for å sette dato.</div>
   </div>
 
   <!-- ============ ITALIANO ============ -->
   <div id="italiano" class="page">
-    <div class="sec"><span class="dot" style="background:var(--terra)"></span>Litt italiensk til turen</div>
-    <p style="font-size:.82rem;color:var(--soft);font-weight:600;margin:0 2px 12px;">Lær noen enkle ord og fraser. Det er gøy – og italienerne elsker det når du prøver! 🇮🇹</p>
-
-    <div class="italian"><span class="ifl">👋</span><div><b>Ciao!</b> <span>– Hei / ha det (uformelt)</span></div></div>
-    <div class="italian"><span class="ifl">🎩</span><div><b>Buongiorno</b> <span>– God morgen / dag (formelt)</span></div></div>
-    <div class="italian"><span class="ifl">🌙</span><div><b>Buonasera</b> <span>– God kveld</span></div></div>
-    <div class="italian"><span class="ifl">🙏</span><div><b>Grazie!</b> <span>– Takk!</span></div></div>
-    <div class="italian"><span class="ifl">😊</span><div><b>Prego</b> <span>– Vær så snill / gjerne (svar på takk)</span></div></div>
-    <div class="italian"><span class="ifl">❓</span><div><b>Scusa, parli inglese?</b> <span>– Unnskyld, snakker du engelsk?</span></div></div>
-
-    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--sea)"></span>Mat & drikke 🍕</div>
-    <div class="italian"><span class="ifl">🍦</span><div><b>Un gelato, per favore</b> <span>– En is, takk</span></div></div>
-    <div class="italian"><span class="ifl">🍕</span><div><b>Una pizza, per favore</b> <span>– En pizza, takk</span></div></div>
-    <div class="italian"><span class="ifl">💧</span><div><b>Un'acqua, per favore</b> <span>– Et glass vann, takk</span></div></div>
-    <div class="italian"><span class="ifl">😋</span><div><b>Che buono!</b> <span>– Så godt!</span></div></div>
-    <div class="italian"><span class="ifl">💰</span><div><b>Quanto costa?</b> <span>– Hvor mye koster det?</span></div></div>
-
-    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--green)"></span>Steder & spørsmål 🗺️</div>
-    <div class="italian"><span class="ifl">🏖️</span><div><b>Dove la spiaggia?</b> <span>– Hvor er stranden?</span></div></div>
-    <div class="italian"><span class="ifl">🏰</span><div><b>Che bello!</b> <span>– Så fint! / Så vakkert!</span></div></div>
-    <div class="italian"><span class="ifl">📸</span><div><b>Una foto, per favore</b> <span>– Et bilde, takk</span></div></div>
-    <div class="italian"><span class="ifl">🎉</span><div><b>Mi piace!</b> <span>– Jeg liker det!</span></div></div>
-    <div class="italian"><span class="ifl">😎</span><div><b>Che forte!</b> <span>– Så kult!</span></div></div>
-
-    <div style="background:linear-gradient(120deg,var(--terra),var(--coral));border:3px solid var(--ink);border-radius:18px;
-      box-shadow:5px 5px 0 var(--ink);padding:14px;margin-top:14px;color:#fff;text-align:center;">
-      <div style="font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:6px;">💡 Pro-tips</div>
-      <div style="font-size:.85rem;font-weight:700;line-height:1.5;">
-        • Italienerne snakker med hendene – les av leppene, ikke bare ørene!<br>
-        • "Per favore" (takk) åpner mange dører. Bruk det!<br>
-        • Hvis du ikke forstår: "Non capisco" (jeg forstår ikke) – folk hjelper gjerne til.
+    <div class="sec"><span class="dot" style="background:var(--coral)"></span>Lagene mine</div>
+    <div style="background:linear-gradient(135deg,#DA291C,#8f120a);border:3px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:14px;margin-bottom:12px;color:#fff;">
+      <div style="font-family:'Bangers',cursive;font-size:1.4rem;letter-spacing:1px;">🔴 MANCHESTER UNITED</div>
+      <div style="font-size:.85rem;font-weight:700;line-height:1.55;margin-top:6px;">
+        Stadion: <b>Old Trafford</b> – "The Theatre of Dreams" 🏟️<br>
+        Kallenavn: <b>The Red Devils</b> 😈<br>
+        Rekordmange ligatitler i England – og maskoten heter <b>Fred the Red</b>!
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1D63D1,#0d2f66);border:3px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:14px;margin-bottom:12px;color:#fff;">
+      <div style="font-family:'Bangers',cursive;font-size:1.4rem;letter-spacing:1px;">🔵 VIKING FK</div>
+      <div style="font-size:.85rem;font-weight:700;line-height:1.55;margin-top:6px;">
+        By: <b>Stavanger</b> · Stadion: <b>SR-Bank Arena</b> 🏟️<br>
+        Stiftet i <b>1899</b> – et av Norges eldste lag!<br>
+        Mørkeblå drakter og 8 seriemesterskap. Heia Viking! 💪
       </div>
     </div>
 
-    <div class="footnote">Lyt til en italiensk podcast eller sang før reisen – hjernen din blir kjent med språket! 🎵</div>
+    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--sky)"></span>Fotballstadioner i London 🏟️</div>
+    <div class="italian"><span class="ifl">🏆</span><div><b>Wembley</b> <span>– nasjonalstadion, cupfinaler og landskamper</span></div></div>
+    <div class="italian"><span class="ifl">🔴</span><div><b>Emirates Stadium</b> <span>– Arsenal</span></div></div>
+    <div class="italian"><span class="ifl">🔵</span><div><b>Stamford Bridge</b> <span>– Chelsea</span></div></div>
+    <div class="italian"><span class="ifl">⚪</span><div><b>Tottenham Hotspur Stadium</b> <span>– har glasskyw­alk på taket!</span></div></div>
+    <div class="italian"><span class="ifl">⚒️</span><div><b>London Stadium</b> <span>– West Ham</span></div></div>
+    <div class="italian"><span class="ifl">🚂</span><div><b>Old Trafford?</b> <span>– ligger i Manchester, ca. 2 timer med tog fra London</span></div></div>
+
+    <div class="sec" style="margin-top:20px;"><span class="dot" style="background:var(--green)"></span>Fotball-engelsk ⚽🇬🇧</div>
+    <div class="italian"><span class="ifl">❓</span><div><b>What's the score?</b> <span>– Hva står det?</span></div></div>
+    <div class="italian"><span class="ifl">📣</span><div><b>Come on!</b> <span>– Kom igjen!</span></div></div>
+    <div class="italian"><span class="ifl">🧤</span><div><b>What a save!</b> <span>– For en redning!</span></div></div>
+    <div class="italian"><span class="ifl">🥅</span><div><b>He shoots... he scores!</b> <span>– Han skyter... og scorer!</span></div></div>
+    <div class="italian"><span class="ifl">🤝</span><div><b>Fair play</b> <span>– rettferdig spill</span></div></div>
+    <div class="italian"><span class="ifl">⭐</span><div><b>Man of the match</b> <span>– banens beste</span></div></div>
+
+    <div style="background:linear-gradient(120deg,var(--terra),var(--coral));border:3px solid var(--ink);border-radius:18px;
+      box-shadow:5px 5px 0 var(--ink);padding:14px;margin-top:14px;color:#fff;text-align:center;">
+      <div style="font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:6px;">💡 Visste du?</div>
+      <div style="font-size:.85rem;font-weight:700;line-height:1.5;">
+        • En kamp mellom to lag fra samme by kalles et <b>derby</b>.<br>
+        • Tre mål av samme spiller i én kamp = <b>hat trick</b> 🎩<br>
+        • På Duolingo lærer du ord du kan bruke på stadion. Streaken din = treningen din! 🦉
+      </div>
+    </div>
+
+    <div class="footnote">Se en kamp sammen i helgen – Viking i Eliteserien eller United i Premier League 📺</div>
   </div>
 
   <!-- ============ SKJERMTID ============ -->
@@ -409,7 +433,7 @@
         <div class="stepper"><button onclick="adjustBase(-15)">−</button><span class="val" id="baseVal">120 min</span><button onclick="adjustBase(15)">+</button></div>
       </div>
     </div>
-    <div class="footnote">Sommer-pott er satt litt høyere enn skoledager. Juster fritt til det som passer familien.</div>
+    <div class="footnote">Juster potten fritt til det som passer skoledager og helger.</div>
   </div>
 
   <!-- ============ VERKTØY ============ -->
@@ -441,8 +465,8 @@
 
 <nav>
   <button class="active" onclick="nav('idag',this)"><span class="ni">☀️</span>I dag</button>
-  <button onclick="nav('bari',this)"><span class="ni">✈️</span>Til Bari</button>
-  <button onclick="nav('italiano',this)"><span class="ni">🇮🇹</span>Italiano</button>
+  <button onclick="nav('bari',this)"><span class="ni">✈️</span>Til London</button>
+  <button onclick="nav('italiano',this)"><span class="ni">⚽</span>Fotball</button>
   <button onclick="nav('skjerm',this)"><span class="ni">⚡</span>Skjermtid</button>
   <button onclick="nav('verktoy',this)"><span class="ni">🛠️</span>Verktøy</button>
   <button onclick="nav('kalender',this)"><span class="ni">📅</span>Kalender</button>
@@ -467,40 +491,46 @@ const store={
 /* ---------- DATO / NEDTELLING ---------- */
 const now=new Date();
 const todayKey=now.toISOString().slice(0,10);
-const departure=new Date('2026-07-02T12:00:00');
-const daysToTrip=Math.max(0,Math.ceil((departure - now)/(1000*60*60*24)));
+let tripDateStr='';try{tripDateStr=localStorage.getItem('londonDate')||'';}catch(e){}
+const departure=tripDateStr?new Date(tripDateStr+'T12:00:00'):null;
+const daysToTrip=departure?Math.max(0,Math.ceil((departure - now)/(1000*60*60*24))):-1;
+function setTripDate(){
+  const v=prompt('Når reiser dere til London? Skriv dato som ÅÅÅÅ-MM-DD',tripDateStr||'2026-');
+  if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v.trim())){try{localStorage.setItem('londonDate',v.trim());}catch(e){}location.reload();}
+  else if(v!==null){alert('Skriv datoen slik: 2026-10-15');}
+}
 const dayNr=now.getDay();                       // 0=søn ... 6=lør
 const isWeekend=(dayNr===0||dayNr===6);
 const doy=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000); // dag i året (for daglig rotasjon)
 
 /* sommertider: senere opp, og leggetid utsatt 1t på ukedager / 2t i helger */
 const T={
-  wake:    isWeekend?'~09:00':'~08:00',
-  screenoff:isWeekend?'~22:45':'~21:45',
-  ready:   isWeekend?'23:15':'22:15',
-  lights:  isWeekend?'00:15':'23:15'
+  wake:    isWeekend?'~09:00':'~07:00',
+  screenoff:isWeekend?'~21:30':'~20:30',
+  ready:   isWeekend?'22:00':'21:00',
+  lights:  isWeekend?'22:30':'21:30'
 };
 
 /* ---------- SOMMER-INNHOLD (roterer hver dag) ---------- */
 const summerFun=[
-  {ic:'🏊',t:'Bade eller svømme',h:'Ferskvann, basseng eller hav'},
+  {ic:'⚽',t:'Fotball ute',h:'Skudd, pasninger eller en løkkekamp'},
+  {ic:'🎯',t:'Triksetrening',h:'Hvor mange touch klarer du? Slå rekorden!'},
+  {ic:'🧗',t:'Klatring',h:'Buldring eller vegg – du er god på dette'},
   {ic:'🚲',t:'Sykkeltur',h:'Utforsk et nytt sted'},
-  {ic:'🍦',t:'Is-tur',h:'Gå og kjøp en is'},
-  {ic:'🏕️',t:'Bygg en hule eller leir',h:'Inne eller ute'},
-  {ic:'🌳',t:'Tur i skogen eller på fjellet',h:'Ta med vann og en snack'},
-  {ic:'🎣',t:'Prøv noe nytt ute',h:'Fiske, klatre, utforske'},
-  {ic:'🏖️',t:'Strandtid',h:'Sand, sol og vann'},
-  {ic:'⚽',t:'Ballspill ute',h:'Fotball, basket eller noe annet'},
+  {ic:'🌳',t:'Tur ut',h:'Frisk luft, uansett vær – ta med snack'},
+  {ic:'🥅',t:'Keeper-trening',h:'Bytt på å stå i mål med en venn'},
+  {ic:'🏃',t:'Intervall-lek',h:'Sprint mellom to punkter x5, som en proff'},
+  {ic:'🎲',t:'Spillkveld uten skjerm',h:'Brettspill eller kort med familien'},
+  {ic:'📺',t:'Se kamp eller høydepunkter',h:'Viking eller United – med noen i familien'},
   {ic:'🛹',t:'Rullebrett eller sparkesykkel',h:'Husk hjelm'},
-  {ic:'🧺',t:'Pikniktur',h:'Spis lunsj ute et fint sted'},
   {ic:'🔭',t:'Oppdag noe nytt',h:'Et sted du ikke har vært før'},
-  {ic:'🎲',t:'Spillkveld uten skjerm',h:'Brettspill eller kort med familien'}
+  {ic:'🤾',t:'Finn på en egen sport',h:'Lag regler og et poengsystem'}
 ];
 const helpTask=[
   {ic:'🛏️',t:'Reile opp sengen',h:'Rask og grei'},
   {ic:'🧺',t:'Legg klær i kurven',h:'Hold rommet ryddig'},
   {ic:'🍽️',t:'Hjelp til med oppvask',h:'Sett inn eller tøm maskinen'},
-  {ic:'🌱',t:'Vann blomstene',h:'De trenger ekstra i varmen'},
+  {ic:'🌱',t:'Vann blomstene',h:'Sjekk om jorden er tørr'},
   {ic:'🧹',t:'Rydd rommet ditt',h:'Alt på sin plass'},
   {ic:'🍴',t:'Dekk bordet',h:'Til et måltid'},
   {ic:'🗑️',t:'Ta ut søppel/pant',h:'Sjekk sorteringen'},
@@ -511,18 +541,18 @@ const helpTask=[
   {ic:'🪴',t:'Hjelp til ute',h:'Vanne, feie eller rydde'}
 ];
 const creativeTask=[
-  {ic:'🎨',t:'Tegn Reflex på stranda',h:'Hva gjør han i sola?'},
+  {ic:'⚽',t:'Tegn Reflex som fotballproff',h:'På Old Trafford – med hatten på?'},
+  {ic:'👕',t:'Design Reflex FC sin drakt',h:'Hjemme- og bortedrakt'},
   {ic:'✏️',t:'Finn på en helt ny figur',h:'Venn eller skurk i Reflex-universet'},
   {ic:'📓',t:'Tegn én tegneserie-rute',h:'Bare én rute med noe gøy'},
   {ic:'🦹',t:'Design en skurk',h:'Hvilke krefter har den?'},
-  {ic:'✍️',t:'Skriv en kort historie',h:'Hva skjer med Reflex i dag?'},
-  {ic:'🌴',t:'Tegn Reflex i Italia',h:'Gelato, hav eller trulli-hus?'},
+  {ic:'🧤',t:'Tegn Reflex som keeper',h:'Kjemperedning i sakte film!'},
   {ic:'🎮',t:'Finn på et minispill',h:'Tegn hvordan det ser ut'},
-  {ic:'🐱',t:'Tegn mafiakatten',h:'Gi den et kult antrekk'},
+  {ic:'🚌',t:'Tegn Reflex i London',h:'På dobbeltdekker, ved Big Ben eller på stadion?'},
   {ic:'🗺️',t:'Tegn et kart',h:'Til en verden du finner på'},
-  {ic:'💥',t:'Tegn en actionscene',h:'Med fart og effekter'},
-  {ic:'😎',t:'Tegn Reflex som superhelt',h:'Hva er superkraften?'},
-  {ic:'🎭',t:'Tegn samme figur i 3 humør',h:'Glad, sint og redd'},
+  {ic:'💥',t:'Tegn en actionscene',h:'Siste minutt, stillingen er 2–2...'},
+  {ic:'🏟️',t:'Design ditt eget stadion',h:'Hva heter det? Hvor mange plasser?'},
+  {ic:'🎭',t:'Tegn samme figur i 3 humør',h:'Etter seier, tap og uavgjort'},
   {ic:'🏰',t:'Tegn et nytt sted i universet',h:'Hvor bor figurene dine?'},
   {ic:'🎬',t:'Lag en kort tegneserie-stripe',h:'Tre ruter med start, midt og slutt'}
 ];
@@ -535,10 +565,11 @@ function buildQuests(){
     {g:'morgen',gl:'🌅 Morgen',gd:'var(--sun)',items:[
       {id:'opp',ic:'☀️',time:T.wake,t:'Stå opp i ro',h:'God morgen – ingen hast i ferien',xp:20,scr:0},
       {id:'frokost',ic:'🥣',time:'',t:'Spis frokost',h:'Ta god tid',xp:20,scr:0},
-      {id:'stell',ic:'🧴',time:'',t:'Stell deg og smør solkrem',h:'Viktig når sola steker',xp:20,scr:0},
+      {id:'stell',ic:'🪥',time:'',t:'Morgenstell',h:'Tannpuss, klær og sekk klar',xp:20,scr:0},
     ]},
-    {g:'dagen',gl:'🏖️ Dagen',gd:'var(--sea)',items:[
-      {id:'fun',ic:fun.ic,time:'Sommer-moro',t:fun.t,h:fun.h,xp:30,scr:15},
+    {g:'dagen',gl:'⚽ Dagen',gd:'var(--sea)',items:[
+      {id:'fun',ic:fun.ic,time:'Dagens aktivitet',t:fun.t,h:fun.h,xp:30,scr:15},
+      {id:'duo',ic:'🦉',time:'Hver dag!',t:'Duolingo-økta',h:'Hold streaken i live – engelsk til London! 🇬🇧',xp:30,scr:10},
       {id:'ute',ic:'🌞',time:'',t:'Vær ute i 30 min',h:'Frisk luft gir energi',xp:25,scr:15},
       {id:'tegne',ic:creative.ic,time:'Dagens kreative',t:creative.t,h:creative.h,xp:25,scr:10},
       {id:'les',ic:'📚',time:'',t:'Les en tegneserie 15 min',h:'Manga teller! Velg selv',xp:25,scr:10},
@@ -556,29 +587,29 @@ const QUESTS=buildQuests();
 /* ---------- REISEPLAN ---------- */
 const TRIP=[
   {ic:'🌅',t:'Morgen hjemme',d:'Stå opp i ro, spis frokost, og pakk det aller siste i sekken.'},
-  {ic:'🚗',t:'Til Flesland',d:'Vi drar til Bergen lufthavn i god tid – bedre å være tidlig ute enn å stresse.'},
+  {ic:'🚗',t:'Til Flesland',d:'Dere drar til Bergen lufthavn i god tid – bedre å være tidlig ute enn å stresse.'},
   {ic:'🛂',t:'Innsjekk og sikkerhetskontroll',d:'Sekken på båndet, lommene tomme, og gå rolig gjennom porten. Helt vanlig – alle gjør det.'},
-  {ic:'⏳',t:'Vente ved gaten',d:'Litt venting før vi går om bord. Fint å tegne eller høre på noe.'},
-  {ic:'✈️',t:'Fly 1: Bergen → Oslo',d:'Kort tur, ca. 1 time. Tygg tyggis eller drikk litt ved take-off, så blir det godt i ørene.'},
-  {ic:'🔁',t:'Bytte fly i Oslo',d:'Vi har god tid i Oslo (noen timer). Finn riktig gate, spis litt, og slapp av – skjerm er helt greit her.'},
-  {ic:'🛫',t:'Fly 2: Oslo → Bari',d:'Lengre tur, ca. 3 timer. Perfekt til å se noe, tegne eller bare hvile.'},
-  {ic:'🌊',t:'Lande i Bari kl 19:15',d:'Velkommen til Italia! Varmt, sommer og ferie venter. 🇮🇹'}
+  {ic:'⏳',t:'Vente ved gaten',d:'Litt venting før dere går om bord. Fint å tegne, gjøre Duolingo eller høre på noe.'},
+  {ic:'✈️',t:'Fly: Bergen → London',d:'Ca. 1 t 50 min over Nordsjøen. Tygg tyggis ved take-off, så blir det godt i ørene.'},
+  {ic:'🛬',t:'Lande i London',d:'Pass-kontroll og bagasje sammen med Besto og Farfar – de har gjort dette mange ganger.'},
+  {ic:'🚇',t:'Inn til byen',d:'Tog eller Underground. Hør etter: "Mind the gap!" – nå kan du engelsken din.'},
+  {ic:'🎡',t:'Velkommen til London!',d:'Rød buss, Big Ben og eventyr venter. 🇬🇧'}
 ];
 
 /* ---------- PAKKELISTE ---------- */
 const PACK=[
-  {id:'pass',ic:'🛂',t:'Pass / ID (mamma og pappa passer på)'},
+  {id:'pass',ic:'🛂',t:'Pass / ID (de voksne passer på)'},
   {id:'tegne',ic:'🎨',t:'Tegnesaker og skissebok'},
   {id:'manga',ic:'📚',t:'Tegneserie å lese på flyet'},
   {id:'nettbrett',ic:'🎮',t:'Nettbrett + lader (last ned før flyet!)'},
   {id:'hodetlf',ic:'🎧',t:'Hodetelefoner'},
   {id:'tyggis',ic:'🍬',t:'Tyggis/drikke til take-off'},
   {id:'snack',ic:'🍪',t:'Snacks til reisen'},
-  {id:'genser',ic:'🧥',t:'Genser (kjølig på flyet)'},
-  {id:'bade',ic:'🩳',t:'Badebukse'},
-  {id:'solbr',ic:'🕶️',t:'Solbriller'},
-  {id:'caps',ic:'🧢',t:'Caps eller hatt'},
-  {id:'solkrem',ic:'🧴',t:'Solkrem'},
+  {id:'regn',ic:'🧥',t:'Regnjakke (London-vær!)'},
+  {id:'genser',ic:'🧶',t:'Varm genser'},
+  {id:'drakt',ic:'👕',t:'Fotballdrakta'},
+  {id:'sko',ic:'👟',t:'Gode gå-sko (mye gåing i London)'},
+  {id:'caps',ic:'🧢',t:'Caps eller lue'},
   {id:'vann',ic:'💧',t:'Tom vannflaske (fyll etter kontrollen)'},
   {id:'kos',ic:'⭐',t:'Noe kjekt hjemmefra som gjør deg rolig'}
 ];
@@ -596,36 +627,36 @@ const HENE=[
 
 /* ---------- DAGENS ITALIENSKE ORD ---------- */
 const WOTD_LIST=[
-{w:'Ciao',p:'cha-o',n:'Hei / ha det',h:'Brukes både som hei og ha det!'},
-{w:'Sole',p:'so-leh',n:'Sol',h:'Il sole = solen'},
-{w:'Mare',p:'mah-reh',n:'Hav / sjø',h:'Andiamo al mare! = La oss dra til havet!'},
-{w:'Gelato',p:'dze-lah-to',n:'Is',h:'Den ekte italienske isen!'},
-{w:'Pizza',p:'peet-tsa',n:'Pizza',h:'Kommer fra Napoli!'},
-{w:'Gatto',p:'gaht-to',n:'Katt',h:'Un gatto = en katt'},
-{w:'Bello',p:'bel-lo',n:'Vakker / fin',h:'Che bello! = Så fint!'},
-{w:'Grazie',p:'graht-tsye',n:'Takk',h:'Alltid hyggelig å si!'},
-{w:'Amico',p:'ah-mee-ko',n:'Venn',h:'Amico mio = vennen min'},
-{w:'Acqua',p:'ahk-kwa',n:'Vann',h:"Un'acqua, per favore!"},
-{w:'Casa',p:'kah-za',n:'Hjem / hus',h:'A casa = hjemme'},
-{w:'Spiaggia',p:'spee-ahd-ja',n:'Strand',h:'Alla spiaggia! = Til stranden!'},
-{w:'Buono',p:'bwoh-no',n:'God / deilig',h:'Che buono! = Så godt!'},
-{w:'Forte',p:'for-teh',n:'Sterk / kul',h:'Che forte! = Så kult!'},
-{w:'Pesce',p:'peh-sheh',n:'Fisk',h:'Il pesce = fisken'},
-{w:'Colori',p:'ko-loh-ree',n:'Farger',h:'Tutti i colori = alle fargene'},
-{w:'Pane',p:'pah-neh',n:'Brød',h:'Focaccia er et type brød!'},
-{w:'Volare',p:'vo-lah-reh',n:'Å fly',h:'Voglio volare = jeg vil fly'},
-{w:'Bambino',p:'bam-bee-no',n:'Barn / gutt',h:'Un bambino simpatico = en hyggelig gutt'},
-{w:'Avventura',p:'ahv-ven-too-ra',n:'Eventyr',h:"Un'avventura italiana = et italiensk eventyr"},
-{w:'Magico',p:'mah-dzee-ko',n:'Magisk',h:'È magico! = Det er magisk!'},
-{w:'Divertente',p:'dee-ver-ten-teh',n:'Morsomt / gøy',h:'È divertente! = Det er gøy!'},
-{w:'Stella',p:'stel-la',n:'Stjerne',h:'Le stelle = stjernene'},
-{w:'Musica',p:'moo-zee-ka',n:'Musikk',h:'La musica italiana = italiensk musikk'},
-{w:'Sogno',p:'son-yo',n:'Drøm',h:'Un bel sogno = en fin drøm'},
-{w:'Coraggio',p:'ko-rahd-jo',n:'Mot',h:'Hai coraggio! = Du har mot!'},
-{w:'Camminare',p:'kahm-mee-nah-reh',n:'Å gå',h:'Andiamo a camminare = la oss gå en tur'},
-{w:'Ridere',p:'ree-deh-reh',n:'Å le',h:'Mi fa ridere! = Det får meg til å le!'},
-{w:'Famiglia',p:'fa-mee-lya',n:'Familie',h:'La mia famiglia = familien min'},
-{w:'Cielo',p:'cheh-lo',n:'Himmel',h:'Un cielo blu = en blå himmel'}
+{w:'Goal',p:'gå-ol',n:'Mål',h:'GOOOAL! Det viktigste ordet i fotball'},
+{w:'Match',p:'mætsj',n:'Kamp',h:'A football match = en fotballkamp'},
+{w:'Team',p:'tiim',n:'Lag',h:'My favourite team = favorittlaget mitt'},
+{w:'Goalkeeper',p:'gå-ol-kii-per',n:'Keeper',h:'Ofte bare "keeper" eller "goalie"'},
+{w:'Striker',p:'strai-ker',n:'Spiss',h:'Den som scorer flest mål'},
+{w:'Pitch',p:'pitsj',n:'Fotballbane',h:'On the pitch = på banen'},
+{w:'Referee',p:'ref-e-rii',n:'Dommer',h:'Fansen roper ofte til the ref...'},
+{w:'Win',p:'ouinn',n:'Vinne / seier',h:'We won! = Vi vant!'},
+{w:'Draw',p:'drå',n:'Uavgjort',h:'It was a draw = det ble uavgjort'},
+{w:'Kick-off',p:'kikk-åff',n:'Avspark',h:'Kick-off is at three = avspark kl. 15'},
+{w:'Half-time',p:'haaf-taim',n:'Pause',h:'Midt i kampen'},
+{w:'Corner',p:'kår-ner',n:'Hjørnespark',h:'Corner kick = corner'},
+{w:'Header',p:'hed-der',n:'Heading',h:'What a header! = For en heading!'},
+{w:'Trophy',p:'trå-fi',n:'Pokal',h:'Lift the trophy = løfte pokalen'},
+{w:'Stadium',p:'stei-di-um',n:'Stadion',h:'Old Trafford is a stadium'},
+{w:'Crowd',p:'kraud',n:'Publikum',h:'The crowd is singing = publikum synger'},
+{w:'Underground',p:'ann-der-graund',n:'T-banen i London',h:'Kalles også "the Tube"'},
+{w:'Mind the gap',p:'maind dhe gæpp',n:'Pass på avstanden',h:'Sies på alle T-banestasjoner i London!'},
+{w:'Please',p:'pliis',n:'Vær så snill',h:'Åpner alle dører i England'},
+{w:'Thank you',p:'thænk juu',n:'Takk',h:'Britene sier det hele tiden'},
+{w:'Excuse me',p:'eks-kjuus mi',n:'Unnskyld meg',h:'Når du skal forbi noen'},
+{w:'How much is it?',p:'hau matsj is itt',n:'Hvor mye koster det?',h:'Nyttig i tegneseriebutikken!'},
+{w:'Awesome',p:'å-somm',n:'Kjempekult',h:'That is awesome! = Det er rått!'},
+{w:'Legend',p:'led-sjend',n:'Legende',h:'He is a legend = han er en legende'},
+{w:'Skill',p:'skill',n:'Ferdighet',h:'Great skills! = rå teknikk!'},
+{w:'Pass',p:'paas',n:'Pasning',h:'Nice pass! = fin pasning!'},
+{w:'Shoot',p:'sjuut',n:'Skyte',h:'Shoot! = Skyt!'},
+{w:'Save',p:'seiv',n:'Redning',h:'What a save! = for en redning!'},
+{w:'Derby',p:'daar-bi',n:'Derby',h:'Kamp mellom lag fra samme by'},
+{w:'Kit',p:'kitt',n:'Drakt/utstyr',h:'The new kit = den nye drakta'}
 ];
 function renderWOTD(){
   const w=WOTD_LIST[doy%WOTD_LIST.length];
@@ -640,13 +671,50 @@ function speakWOTD(){
   if(!window.speechSynthesis){document.getElementById('wotdTapHint').textContent='🔇 Lyd ikke støttet i denne nettleseren';return;}
   window.speechSynthesis.cancel();
   const utt=new SpeechSynthesisUtterance(w.w);
-  utt.lang='it-IT';utt.rate=0.85;utt.pitch=1.1;
+  utt.lang='en-GB';utt.rate=0.85;utt.pitch=1.05;
   utt.onstart=()=>{box.classList.add('speaking');document.getElementById('wotdTapHint').textContent='🔊 Spiller av...';};
   utt.onend=()=>{box.classList.remove('speaking');document.getElementById('wotdTapHint').textContent='👆 Trykk for å høre igjen';};
   utt.onerror=()=>{box.classList.remove('speaking');document.getElementById('wotdTapHint').textContent='👆 Trykk for å høre uttalen';};
   window.speechSynthesis.speak(utt);
 }
 
+
+/* ---------- DAGENS FOTBALLSPØRSMÅL ---------- */
+const QUIZ=[
+ {q:'Hva heter stadionet til Manchester United?',a:'Old Trafford – "The Theatre of Dreams"'},
+ {q:'Hvilken by hører Viking FK til?',a:'Stavanger'},
+ {q:'Hva heter hjemmebanen til Viking?',a:'SR-Bank Arena'},
+ {q:'Hva er kallenavnet til Manchester United?',a:'The Red Devils – de røde djevlene'},
+ {q:'Hvor mange spillere har hvert lag på banen?',a:'11 – ti utespillere og én keeper'},
+ {q:'Hva heter Englands nasjonalstadion i London?',a:'Wembley'},
+ {q:'Hvilket år ble Viking FK stiftet?',a:'1899 – et av Norges eldste lag!'},
+ {q:'Hva kalles det når én spiller scorer tre mål i samme kamp?',a:'Hat trick 🎩'},
+ {q:'Hvor lenge varer en vanlig fotballkamp?',a:'90 minutter – to omganger på 45'},
+ {q:'Hva kalles en kamp mellom to lag fra samme by?',a:'Derby'},
+ {q:'Hva heter ligaen Viking spiller i?',a:'Eliteserien'},
+ {q:'Hva heter ligaen Manchester United spiller i?',a:'Premier League'},
+ {q:'Hva heter maskoten til Manchester United?',a:'Fred the Red'},
+ {q:'Hva står VAR for?',a:'Video Assistant Referee – videodommeren'},
+ {q:'Hvilken farge har hjemmedrakta til United?',a:'Rød'},
+ {q:'Hvilken farge har hjemmedrakta til Viking?',a:'Mørkeblå'},
+ {q:'Nevn tre London-lag i toppfotballen',a:'F.eks. Arsenal, Chelsea, Tottenham og West Ham'},
+ {q:'Hva betyr "clean sheet" for en keeper?',a:'Å holde nullen – ingen baklengsmål'},
+ {q:'Hva kalles avspark på engelsk?',a:'Kick-off'},
+ {q:'Ligger Old Trafford i London?',a:'Nei – i Manchester, ca. 2 timer med tog fra London'},
+ {q:'Hva betyr "offside"?',a:'Å være nærmere mål enn nest bakerste motspiller når ballen spilles'},
+ {q:'Hva kalles banens beste spiller på engelsk?',a:'Man of the match'}
+];
+function renderQuiz(){
+  const q=QUIZ[doy%QUIZ.length];
+  document.getElementById('quizQ').textContent=q.q;
+  document.getElementById('quizA').textContent='✅ '+q.a;
+  if(S.done.includes('quiz')){document.getElementById('quizA').classList.add('show');document.getElementById('quizBtn').style.display='none';}
+}
+function revealQuiz(){
+  document.getElementById('quizA').classList.add('show');
+  document.getElementById('quizBtn').style.display='none';
+  if(!S.done.includes('quiz')){S.done.push('quiz');S.xp+=25;powAt();floatText('+25 XP');checkLevel();cheer();save();renderHero();}
+}
 
 /* ---------- STATE ---------- */
 let S={date:todayKey,xp:0,level:1,streak:0,done:[],used:0,earned:0,base:120,travel:false};
@@ -700,7 +768,7 @@ function renderQuests(){
   let html='';
   // Reiseprep-oppgaver
   const tripPrepQuests=[
-    {id:'reiseprep',ic:'🎒',t:'Start å pakke sekken',h:'Tegnesaker, badedrakt, solfaktor – gå til pakkelista'},
+    {id:'reiseprep',ic:'🎒',t:'Start å pakke sekken',h:'Tegnesaker, regnjakke, drakta – gå til pakkelista'},
     {id:'reisedokumenter',ic:'📄',t:'Sjekk pass og dokumenter',h:'Hva trenger du med i flyet? Spør mamma eller pappa'}
   ];
   
@@ -745,7 +813,7 @@ function toggleQuest(id){
 }
 
 function openExplorer(){
-  const search='things to do for 11 year old in Puglia Bari Italy';
+  const search='things to do in London for kids football comics museums';
   const url='https://www.google.com/search?q='+encodeURIComponent(search);
   window.open(url,'_blank');
   // Teller også som gjort hvis de åpner den
@@ -838,7 +906,7 @@ function renderHene(){
 function powAt(){const p=document.getElementById('pow');p.classList.remove('go');void p.offsetWidth;p.classList.add('go');}
 function floatText(txt){const f=document.createElement('div');f.className='float';f.textContent=txt;
   f.style.left=(window.innerWidth/2-30)+'px';f.style.top='45%';document.body.appendChild(f);setTimeout(()=>f.remove(),1000);}
-const cheers=['Bra jobba!','Sånn ja!','Du er på!','Kjempebra!','Reflex jubler!','Nice!','Sommer-konge!'];
+const cheers=['Bra jobba!','GOOOAL!','Du er på!','Kjempebra!','Reflex jubler!','Nice one!','Klasse spilt!'];
 function cheer(){setReflex('happy',cheers[Math.floor(Math.random()*cheers.length)]);setTimeout(()=>setReflex(moodForTime(),speechForTime()),1600);}
 function showLevelUp(){document.getElementById('luTitle').textContent='LEVEL '+S.level+'!';
   document.getElementById('luText').textContent='Reflex ble sterkere! Kjempebra jobba, Ludvig. 🐾';
@@ -847,11 +915,11 @@ function closeLevelUp(){document.getElementById('levelup').classList.remove('sho
 function moodForTime(){if(S.travel)return 'cool';const h=new Date().getHours();return (h>=21||h<6)?'sleepy':'cool';}
 function speechForTime(){
   const h=new Date().getHours();
-  if(daysToTrip>0&&daysToTrip<=7&&h>=9&&h<21)return daysToTrip+' dager til Bari! 🇮🇹';
-  if(h<9)return 'God morgen! Nyt sommerdagen ☀️';
+  if(daysToTrip>0&&daysToTrip<=14&&h>=9&&h<21)return daysToTrip+' dager til London! 🇬🇧';
+  if(h<9)return 'God morgen! Klar for dagen? ⚽';
   if(h>=21)return 'Snart leggetid – godt jobba i dag 🌙';
   const left=QUESTS.flatMap(g=>g.items).filter(q=>!S.done.includes(q.id)).length;
-  return left>0?('Du har '+left+' oppdrag igjen i dag!'):'Alle oppdrag gjort – nyt ferien! 🏖️';
+  return left>0?('Du har '+left+' oppdrag igjen i dag!'):'Alle oppdrag gjort – hat trick! 🏆';
 }
 
 /* ---------- NAV ---------- */
@@ -861,9 +929,18 @@ function nav(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.r
 
 /* ---------- INIT ---------- */
 load();
-document.getElementById('cdNum').textContent=daysToTrip;
-document.getElementById('cdNum2').textContent=daysToTrip;
-if(daysToTrip===0){document.getElementById('cdSub').textContent='I dag bærer det av gårde! ✈️';}
+if(daysToTrip<0){
+  document.getElementById('cdNum').textContent='?';
+  document.getElementById('cdNum2').textContent='?';
+  document.getElementById('cdSub').textContent='Trykk for å sette reisedato';
+  document.getElementById('cdSub2').textContent='Trykk for å sette reisedato';
+}else{
+  document.getElementById('cdNum').textContent=daysToTrip;
+  document.getElementById('cdNum2').textContent=daysToTrip;
+  document.getElementById('cdSub2').textContent='med Besto og Farfar ❤️';
+  if(daysToTrip===0){document.getElementById('cdSub').textContent='I dag bærer det av gårde! ✈️';}
+}
+renderQuiz();
 renderQuests();renderHero();renderEnergy();renderTrip();renderPack();renderHene();
 renderWOTD();
 setReflex(moodForTime(),speechForTime());
